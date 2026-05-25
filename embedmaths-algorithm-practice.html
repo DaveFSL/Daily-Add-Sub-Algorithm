@@ -1,0 +1,2734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EmbedMaths — Addition &amp; Subtraction Algorithm Practice</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --teal-dark: #0e5d66;
+  --teal-light: #3eaeb8;
+  --bg: #f5fafa;
+  --white: #fff;
+  --text: #1a3a3e;
+  --muted: #5a8a90;
+  --carry: #d35400;
+  --trade-old: #c0392b;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(14,93,102,.12);
+}
+html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+#app { height: 100%; display: flex; flex-direction: column; max-width: 920px; margin: 0 auto; border-left: 1px solid #d4ecef; border-right: 1px solid #d4ecef; background: var(--bg); }
+
+/* Header */
+header {
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #eef7f8 0%, #f8fcfd 55%, #fff 100%);
+  color: var(--text);
+  border-bottom: 1px solid #e4f0f2;
+  padding: .78rem 1.15rem;
+  min-height: 4.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+header.header--session {
+  background: var(--white);
+  border-bottom: 1px solid #dceef0;
+  padding: .62rem 1.15rem;
+  min-height: 3.5rem;
+}
+header.header--hero {
+  padding: 1.2rem 1.25rem 1.35rem;
+  min-height: auto;
+  justify-content: center;
+}
+header.header--hero .header-brand {
+  flex-direction: column;
+  align-items: center;
+  gap: .95rem;
+  width: 100%;
+}
+header.header--hero .header-brand-text {
+  align-items: center;
+  text-align: center;
+  padding-top: 0;
+  gap: .28rem;
+}
+header.header--hero .header-logo-box {
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  padding: 7px;
+}
+header.header--hero .header-product-name {
+  font-size: 2rem;
+}
+header.header--hero .header-tagline {
+  font-size: .88rem;
+}
+header.header--launch {
+  padding: 1.45rem 1.25rem 1.55rem;
+}
+header.header--launch .header-logo-box {
+  width: 118px;
+  height: 118px;
+  border-radius: 16px;
+  padding: 8px;
+}
+header.header--launch .header-product-name {
+  font-size: clamp(1.85rem, 4.5vw, 2.45rem);
+}
+header.header--launch .header-tagline {
+  font-size: .95rem;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  min-width: 0;
+}
+.header-logo-box {
+  flex-shrink: 0;
+  width: 66px;
+  height: 66px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(14, 93, 102, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  overflow: hidden;
+}
+.header-logo-box img,
+.header-logo-box svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+.header-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: .18rem;
+  min-width: 0;
+  padding-top: .05rem;
+}
+.header-product-name {
+  font-size: 1.32rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  letter-spacing: -.01em;
+  line-height: 1.15;
+}
+.header-product-sub {
+  font-size: .65em;
+  color: var(--teal-light);
+  font-weight: 600;
+}
+.header-tagline {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .72rem;
+  color: var(--muted);
+  line-height: 1.2;
+}
+header button.back-btn {
+  background: #fff;
+  border: 1px solid #c5e0e3;
+  color: var(--teal-dark);
+  padding: .35rem .75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .8rem;
+  flex-shrink: 0;
+}
+header button.back-btn:hover { background: #f0f9fa; }
+
+.session-bar {
+  display: none;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+header.header--session .session-bar { display: flex; }
+header.header--session .header-brand { display: none; }
+
+.meta-badge {
+  display: inline-flex;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+.meta-badge .op-part {
+  background: var(--teal-dark);
+  color: var(--white);
+  padding: .28rem .55rem;
+}
+.meta-badge .type-part {
+  background: #eef6f7;
+  color: var(--muted);
+  padding: .28rem .55rem;
+  border: 1px solid #d0e8ea;
+  border-left: none;
+}
+.session-progress {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--teal-dark);
+  flex: 1;
+  text-align: center;
+}
+.btn-settings {
+  background: #f5fafa;
+  border: 1px solid #c5e0e3;
+  color: var(--muted);
+  padding: .32rem .65rem;
+  border-radius: 6px;
+  font-size: .78rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-settings:hover { background: #e8f6f7; color: var(--teal-dark); }
+
+/* Main area */
+main { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: .85rem 1rem 1rem; }
+.screen { display: none; flex-direction: column; height: 100%; min-height: 0; }
+.screen.active { display: flex; }
+#screenSetup.active {
+  flex-direction: column;
+  padding-bottom: .5rem;
+}
+
+/* Launch */
+#screenLaunch.active {
+  padding-top: .25rem;
+  overflow-y: auto;
+}
+.launch-grid {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-content: start;
+  padding-top: 1.35rem;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+.launch-pin-card {
+  flex-shrink: 0;
+  max-width: 720px;
+  margin: 1.15rem auto 0;
+  width: 100%;
+  background: var(--white);
+  border: 1px solid #e4f0f2;
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem 1.05rem;
+  box-shadow: var(--shadow);
+}
+.launch-pin-card h3 {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .65rem;
+}
+.launch-card {
+  background: var(--white);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: border-color .2s, transform .15s;
+}
+.launch-card:hover { border-color: var(--teal-light); transform: translateY(-2px); }
+.launch-card h2 { color: var(--teal-dark); font-size: 1.2rem; margin-bottom: .5rem; }
+.launch-card p { color: var(--muted); font-size: .88rem; line-height: 1.45; }
+.launch-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+
+/* Setup / configure session */
+.setup-page {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: .15rem .35rem 1rem;
+}
+.setup-page-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.setup-page-header .setup-subtitle {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-top: 0;
+}
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .85rem;
+  margin-bottom: 1rem;
+}
+.setup-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 1rem 1rem .9rem;
+  box-shadow: 0 2px 14px rgba(14, 93, 102, .08);
+  border: 1px solid #e4f0f2;
+}
+.setup-card-title {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .65rem;
+}
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+}
+.choice-option {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .55rem .65rem;
+  border: 1.5px solid #d4e8eb;
+  border-radius: 10px;
+  background: #f7fbfb;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  user-select: none;
+}
+.choice-option:hover { background: #f0f8f9; }
+.choice-option.is-selected {
+  border-color: var(--teal-dark);
+  border-width: 2px;
+  background: var(--white);
+  padding: calc(.55rem - .5px) calc(.65rem - .5px);
+}
+.choice-option input { position: absolute; opacity: 0; pointer-events: none; }
+.choice-check {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #b8d4d8;
+  border-radius: 4px;
+  background: #eef6f7;
+  position: relative;
+}
+.choice-option.is-selected .choice-check {
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
+}
+.choice-option.is-selected .choice-check::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--white);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.choice-text {
+  flex: 1;
+  font-size: .86rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.25;
+}
+.choice-hint {
+  font-size: .72rem;
+  color: var(--muted);
+  text-align: right;
+  line-height: 1.25;
+  max-width: 42%;
+}
+.setup-card-note {
+  margin-top: .55rem;
+  font-size: .72rem;
+  color: var(--muted);
+  line-height: 1.4;
+  font-style: italic;
+}
+.setup-card--pin .pin-row {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-top: .55rem;
+  padding-top: .55rem;
+  border-top: 1px solid #e8f2f3;
+}
+.setup-card--pin .pin-row.hidden { display: none; }
+.setup-card--pin input[type="password"] {
+  width: 5.5rem;
+  padding: .45rem .55rem;
+  border: 1.5px solid #c5e0e3;
+  border-radius: 8px;
+  font-size: .92rem;
+  letter-spacing: .2em;
+  text-align: center;
+  background: var(--white);
+}
+.setup-card--pin input:focus { outline: none; border-color: var(--teal-light); }
+.setup-card--pin .pin-hint {
+  font-size: .72rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.setup-card--span-left { grid-column: 1; }
+.setup-card.hidden { display: none; }
+.btn-continue {
+  display: block;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: .78rem 1rem;
+  background: var(--teal-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-continue:hover { background: #0a4a52; }
+
+/* Legacy form helpers (extension setup) */
+.setup-form {
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-y: auto;
+  padding: .25rem .5rem 1rem;
+}
+.field { margin-bottom: 1rem; }
+.field.hidden { display: none; }
+.field label { display: block; font-size: .82rem; font-weight: 600; color: var(--teal-dark); margin-bottom: .35rem; }
+.field select, .field input[type="text"], .field input[type="password"] {
+  width: 100%;
+  padding: .55rem .7rem;
+  border: 1.5px solid #c5e0e3;
+  border-radius: 8px;
+  font-size: .92rem;
+  background: var(--white);
+  color: var(--text);
+}
+.field select:focus, .field input:focus { outline: none; border-color: var(--teal-light); }
+.toggle-row { display: flex; align-items: center; gap: .6rem; }
+.toggle-row input { width: 18px; height: 18px; accent-color: var(--teal-dark); }
+.toggle-row span { font-size: .9rem; }
+.btn-primary {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin: .5rem auto 0;
+  padding: .7rem 1rem;
+  background: var(--teal-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary:hover { background: #0a4a52; }
+.btn-secondary {
+  padding: .55rem 1.1rem;
+  background: var(--white);
+  color: var(--teal-dark);
+  border: 1.5px solid var(--teal-light);
+  border-radius: 8px;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-secondary:hover { background: #e8f6f7; }
+
+/* Practice session */
+.question-card {
+  flex-shrink: 0;
+  background: var(--white);
+  border: 1px solid #d4ecef;
+  border-top: 3px solid var(--teal-light);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem 1rem;
+  text-align: center;
+  margin-bottom: .75rem;
+  box-shadow: var(--shadow);
+}
+.question-card .q-instruction {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .62rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .65rem;
+}
+.question-card .q-main {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: clamp(1.6rem, 4vw, 2.15rem);
+  font-weight: 700;
+  color: var(--teal-dark);
+  margin-bottom: .45rem;
+  line-height: 1.2;
+}
+.question-card .q-sub {
+  font-size: .82rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: .85rem;
+}
+.question-card .btn-show {
+  display: inline-block;
+  padding: .5rem 1.25rem;
+  background: var(--white);
+  border: 1.5px solid var(--teal-light);
+  color: var(--teal-dark);
+  border-radius: 8px;
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.question-card .btn-show:hover { background: #e8f6f7; }
+.question-card.no-action .q-sub { margin-bottom: 0; }
+
+/* Solution panel */
+.solution-panel {
+  flex: 1;
+  min-height: 0;
+  display: none;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid #d4ecef;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.solution-panel.visible { display: flex; }
+.solution-panel-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .5rem .85rem;
+  background: #eef8f9;
+  border-bottom: 1px solid #d4ecef;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  color: var(--teal-dark);
+}
+.progress-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.progress-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c5e0e3;
+  transition: background .2s;
+}
+.progress-dots span.filled { background: var(--teal-light); }
+.progress-dots span.current { background: var(--teal-dark); }
+
+.solution-columns {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.solution-col {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.solution-col + .solution-col { border-left: 1px solid #e8f2f3; }
+.solution-col h4 {
+  flex-shrink: 0;
+  padding: .45rem .75rem;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  color: var(--muted);
+  background: #fafdfd;
+  border-bottom: 1px solid #eef4f5;
+}
+.solution-col-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: .85rem .75rem;
+}
+
+/* Algorithm layout */
+.solution-col-body.layout-col {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: .75rem;
+  padding-bottom: .35rem;
+}
+.algo-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  padding: .35rem .25rem 0;
+  margin-top: 0;
+}
+.algo-table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.algo-table td {
+  text-align: right;
+  vertical-align: bottom;
+  padding: 2px 6px;
+  min-width: 1.15em;
+  position: relative;
+  font-weight: 800;
+  -webkit-font-smoothing: antialiased;
+}
+.algo-table td.cell-dot {
+  text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+  min-width: .5em;
+  font-weight: 800;
+}
+.algo-table .cell-empty { visibility: hidden; }
+.algo-table .cell-op {
+  text-align: right;
+  padding-right: 8px;
+  color: var(--teal-dark);
+  font-weight: 700;
+}
+.algo-table .cell-line td {
+  border-bottom: 2px solid var(--teal-dark);
+  padding-bottom: 4px;
+  height: 4px;
+}
+.algo-table .cell-result { font-weight: 800; color: var(--teal-dark); }
+.algo-table .cell-result.unrevealed { color: var(--muted); font-weight: 800; }
+.algo-table .carry-cell {
+  vertical-align: bottom;
+  line-height: 1;
+  padding: 0 6px 2px;
+  text-align: center;
+  font-weight: 800;
+}
+.algo-table .carry-row td.carry-cell {
+  vertical-align: bottom;
+  height: 0.95em;
+  padding: 0 6px 0;
+}
+.algo-table .carry-row td.cell-dot {
+  padding: 0 2px;
+  height: 0.95em;
+}
+.algo-table .carry-cell span {
+  color: var(--carry);
+  font-weight: 800;
+  font-size: .52em;
+  line-height: 1;
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+.algo-table .carry-row + .top-row td,
+.algo-table .carry-row + .trade-anno-row + .top-row td {
+  padding-top: 2px;
+}
+.algo-table .trade-anno-row td {
+  line-height: 0;
+  padding: 0 6px 0;
+}
+.algo-table .trade-anno-cell {
+  vertical-align: bottom;
+  height: auto;
+  min-height: 0;
+  font-size: .52em;
+  line-height: 0;
+  padding: 0 6px 0;
+  text-align: right;
+  font-weight: 800;
+}
+.algo-table .trade-anno-cell .trade-new,
+.algo-table .trade-anno-cell .borrow-new {
+  color: var(--carry);
+  font-weight: 700;
+  line-height: 1;
+  display: inline-block;
+  transform: translateY(0.42em);
+}
+.algo-table .digit-cell {
+  vertical-align: bottom;
+  text-align: right;
+}
+.algo-table .digit-cell .trade-old,
+.algo-table .digit-cell .borrow-old {
+  text-decoration: line-through;
+  color: var(--trade-old);
+}
+
+/* Steps list */
+.steps-list { list-style: none; display: flex; flex-direction: column; gap: .45rem; }
+.steps-list li {
+  padding: .55rem .65rem;
+  border-radius: 8px;
+  background: #eef8f9;
+  border: 1px solid #d4ecef;
+  font-size: .84rem;
+  line-height: 1.4;
+}
+.steps-list li.current {
+  background: #e0f4f6;
+  border-color: var(--teal-light);
+}
+.steps-list li.done { opacity: .92; }
+.steps-list li .step-label {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--teal-light);
+  margin-bottom: .2rem;
+}
+.steps-list li .step-main {
+  color: var(--teal-dark);
+  font-weight: 500;
+}
+.steps-list li .step-sub {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: .15rem;
+}
+.steps-list li.step-answer {
+  background: #e8f6f7;
+  border-color: var(--teal-dark);
+}
+.steps-list li.step-answer .step-main { font-weight: 600; }
+.steps-list li.step-answer .step-sub { color: var(--teal-dark); font-weight: 600; }
+
+.mental-box {
+  margin-top: .55rem;
+  padding: .65rem .75rem;
+  background: #f5fafa;
+  border: 1px solid #d4ecef;
+  border-radius: 8px;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.mental-box.hidden { display: none; }
+.mental-box .mental-title {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--muted);
+  margin-bottom: .35rem;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.mental-box .mental-title::before { content: '💡'; font-size: .85rem; }
+.mental-box p { color: var(--text); }
+
+/* Footer action */
+.practice-footer {
+  flex-shrink: 0;
+  padding-top: .75rem;
+  display: none;
+}
+.practice-footer.visible { display: block; }
+.practice-footer-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .65rem;
+  align-items: center;
+}
+#prevStepBtn {
+  justify-self: start;
+  grid-column: 1;
+  width: auto;
+  min-width: 10rem;
+}
+#nextStepBtn,
+#nextQuestionBtn {
+  justify-self: end;
+  grid-column: 2;
+  grid-row: 1;
+  width: auto;
+  min-width: 10rem;
+}
+.practice-footer-actions .btn-footer.full-width {
+  grid-column: 2;
+  justify-self: end;
+}
+.btn-footer {
+  display: block;
+  padding: .75rem 1.25rem;
+  background: var(--teal-dark);
+  color: var(--white);
+  border: none;
+  border-radius: 10px;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.btn-footer:hover { background: #0a4a52; }
+.btn-footer.secondary {
+  background: var(--white);
+  color: var(--teal-dark);
+  border: 1.5px solid var(--teal-light);
+}
+.btn-footer.secondary:hover { background: #e8f6f7; }
+
+/* Estimate screen */
+.estimate-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+}
+.estimate-panel h2 { font-size: 1.05rem; color: var(--teal-dark); }
+.estimate-hint { color: var(--muted); font-size: .88rem; max-width: 400px; line-height: 1.5; }
+
+/* Session complete celebration */
+#screenComplete {
+  position: relative;
+  overflow: hidden;
+}
+.celebration-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.complete-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+.complete-emoji {
+  font-size: 3.5rem;
+  line-height: 1;
+  animation: complete-bounce 0.7s ease-out;
+}
+@keyframes complete-bounce {
+  0% { transform: scale(0.3); opacity: 0; }
+  55% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.complete-content h2 {
+  font-size: 1.65rem;
+  color: var(--teal-dark);
+  font-weight: 700;
+}
+.complete-content .estimate-hint {
+  font-size: .95rem;
+  max-width: 420px;
+}
+
+/* Legacy helpers */
+.question-display {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--teal-dark);
+}
+.progress-pill {
+  background: var(--white);
+  padding: .35rem .85rem;
+  border-radius: 20px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--teal-dark);
+  box-shadow: var(--shadow);
+}
+#screenPractice { gap: 0; }
+#screenPractice .question-card { margin-bottom: .65rem; }
+#screenPractice .solution-panel.visible { margin-bottom: .5rem; }
+
+.action-bar {
+  flex-shrink: 0;
+  padding-top: .75rem;
+}
+.action-bar .btn-primary { max-width: none; margin: 0; }
+.practice-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .75rem;
+}
+
+/* Extension */
+.ext-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+.ext-type-badge {
+  display: inline-block;
+  background: var(--teal-light);
+  color: var(--white);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: .25rem .6rem;
+  border-radius: 6px;
+  margin-bottom: .75rem;
+}
+.ext-problem {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+.ext-problem .math-line {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 1.2rem;
+  margin: .75rem 0;
+  color: var(--teal-dark);
+}
+.pin-overlay {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.pin-overlay input {
+  width: 120px;
+  padding: .45rem .6rem;
+  border: 1.5px solid #c5e0e3;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-right: .5rem;
+}
+.answer-reveal {
+  margin-top: .75rem;
+  padding: .85rem 1rem;
+  background: #e8f6f7;
+  border-radius: 8px;
+  border-left: 3px solid var(--teal-dark);
+  font-size: .95rem;
+}
+.answer-reveal.hidden { display: none; }
+.pin-error { color: #c0392b; font-size: .82rem; margin-top: .35rem; }
+
+@media (max-width: 700px) {
+  .launch-grid { grid-template-columns: 1fr; }
+  .setup-grid { grid-template-columns: 1fr; }
+  .setup-card--span-left { grid-column: auto; }
+  .solution-columns { grid-template-columns: 1fr; }
+  .solution-col + .solution-col { border-left: none; border-top: 1px solid #e8f2f3; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="mainHeader" class="header--hero header--launch">
+    <div class="header-brand">
+      <div class="header-logo-box">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAIAAAC2BqGFAAAAAXNSR0IArs4c6QAAAQRlWElmTU0AKgAAAAgABwESAAMAAAABAAEAAAEaAAUAAAABAAAAYgEbAAUAAAABAAAAagEoAAMAAAABAAIAAAExAAIAAAA5AAAAcgE7AAIAAAAKAAAArIdpAAQAAAABAAAAtgAAAAAAAABgAAAAAQAAAGAAAAABQ2FudmEgZG9jPURBSEpjZG16S1d3IHVzZXI9VUFGcTU3dHp4eG8gYnJhbmQ9QkFGcTU1OVB6WkUAAERhdmlkIENveAAABpAAAAcAAAAEMDIxMJEBAAcAAAAEAQIDAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAAAeKADAAQAAAABAAAAeAAAAADixxitAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAGOGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNi4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczpleGlmPSJodHRwOi8vbnMuYWRvYmUuY29tL2V4aWYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgICAgICAgICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIj4KICAgICAgICAgPGV4aWY6Q29sb3JTcGFjZT42NTUzNTwvZXhpZjpDb2xvclNwYWNlPgogICAgICAgICA8ZXhpZjpQaXhlbFhEaW1lbnNpb24+MjAwMDwvZXhpZjpQaXhlbFhEaW1lbnNpb24+CiAgICAgICAgIDxleGlmOkV4aWZWZXJzaW9uPjAyMTA8L2V4aWY6RXhpZlZlcnNpb24+CiAgICAgICAgIDxleGlmOkZsYXNoUGl4VmVyc2lvbj4wMTAwPC9leGlmOkZsYXNoUGl4VmVyc2lvbj4KICAgICAgICAgPGV4aWY6UGl4ZWxZRGltZW5zaW9uPjIwMDA8L2V4aWY6UGl4ZWxZRGltZW5zaW9uPgogICAgICAgICA8ZXhpZjpDb21wb25lbnRzQ29uZmlndXJhdGlvbj4KICAgICAgICAgICAgPHJkZjpTZXE+CiAgICAgICAgICAgICAgIDxyZGY6bGk+MTwvcmRmOmxpPgogICAgICAgICAgICAgICA8cmRmOmxpPjI8L3JkZjpsaT4KICAgICAgICAgICAgICAgPHJkZjpsaT4zPC9yZGY6bGk+CiAgICAgICAgICAgICAgIDxyZGY6bGk+MDwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZjpTZXE+CiAgICAgICAgIDwvZXhpZjpDb21wb25lbnRzQ29uZmlndXJhdGlvbj4KICAgICAgICAgPHhtcDpDcmVhdG9yVG9vbD5DYW52YSBkb2M9REFISmNkbXpLV3cgdXNlcj1VQUZxNTd0enh4byBicmFuZD1CQUZxNTU5UHpaRTwveG1wOkNyZWF0b3JUb29sPgogICAgICAgICA8dGlmZjpSZXNvbHV0aW9uVW5pdD4yPC90aWZmOlJlc29sdXRpb25Vbml0PgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICAgICA8dGlmZjpYUmVzb2x1dGlvbj45NjwvdGlmZjpYUmVzb2x1dGlvbj4KICAgICAgICAgPHRpZmY6WVJlc29sdXRpb24+OTY8L3RpZmY6WVJlc29sdXRpb24+CiAgICAgICAgIDxkYzp0aXRsZT4KICAgICAgICAgICAgPHJkZjpBbHQ+CiAgICAgICAgICAgICAgIDxyZGY6bGkgeG1sOmxhbmc9IngtZGVmYXVsdCI+Rmxvd1N0YXRlIExvZ28gLSAxPC9yZGY6bGk+CiAgICAgICAgICAgIDwvcmRmOkFsdD4KICAgICAgICAgPC9kYzp0aXRsZT4KICAgICAgICAgPGRjOmNyZWF0b3I+CiAgICAgICAgICAgIDxyZGY6U2VxPgogICAgICAgICAgICAgICA8cmRmOmxpPkRhdmlkIENveDwvcmRmOmxpPgogICAgICAgICAgICA8L3JkZjpTZXE+CiAgICAgICAgIDwvZGM6Y3JlYXRvcj4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+ClRipgMAACVJSURBVHgB7X15nB1Vlf97vSedpbM0JCE7IQsEsoAESEIwbGEbwbCOiqDgqMOI+sPRHwK/j+OojODCKI4/0UEUBA2bQCAJSiAhYUkIZCULi9kICVk63en0+rrne+6599Spe6tev+4k85flo+rc7/me7zn3VL16VfVe2mx7e1t7e3s2g/9lM39fjlgHitraqNHo89+XI9qBInNAo9XtGXll2qOUkRlZGU2IqKGFEB0FgjdUIchOXk3QNsd6iAq3ZoeEMKQQBLKJyolgsmAJGoyzBo7qbFGW1HBo0xqwCaBzCnaBccRAgmLZ3XvC8I2OzchCkj5SFogMmxdWREBBXjABLpGEOyBrysR0zAy4OlO4lreKPC+dVkWxgtW3FUR5yWtk0RbqmU5hbCbAZVprZbItLc1ZnJ2LinCOhstbOIuHs7LTV7OK2su50BMynCbJmP3qALfVUoxxGAWYeDbY5a0lFjjSQd8hEu1F0JA5jmmHru1GyZRtCKSpC2AwPi9OChYZvBSjHEkAhdaWFiowi0YjkddrinSB2IZDgELwvCqOTHixcGYOEYS9GszDZLIQxPDCgcsiLjYEZ0PK1vVolxB0oAa1bTl0hElag9lGF+HEQb2Gk/Np0b/bh6EDRVYD7aUu51nye/MEdsr1v5OlUyUdCjmaDp+a+Sju8FjmMKyjeGPrIZeVhnAse8XWwzCcvYcy20OPlVILl+Kyo5aWmFCggNjH6zRF8YrBTG8IMES0pufVQ7Y9RMoTEZkDmGJzXo/MXhbUzEQyQC9cMrLB6WQtXo7SsTpjOzfaSy/BnTJ0jk4FghxW6Slw0QyG1eoppXE4ihsEjgiK4WVMHDJZrxNpDPKk7NUqNRpxYe15BFJceSsOc8QQjs2rEGVNowlu5manxLOVNU830kqyRCfJmYpxFK85XUQFSh+GtiRYXUsRCaZbUQ7HCRHn6cw2RSWC9fyP3PSk5Cix1026f1GdloAjYxz+mXZesfMRsV4khkcgW9FYYt3lnQCFGwlq+YOju9j8POvNo586He8wSsqjjzntz5NO07pqFx1hfVfX4U3DzUprmcvZuW2Baom0RDBKT5OnIzq6P+cA3RRtSySDIVkIodFBKWGAOqGFNQDhVxiXv6pQKlQ43AhyoqikU4duiralAg1qWwjJRieoMYEwDgi/Yjx13uCQsK2hlKdwBIbmyZpttKuIt3qdJ7ELSqHoOaXNOyk0TVbjukLBxUhSjTAdG6HKAqFAKRWUZOoOZOI3LOzS6yQBi8V0EnkeA8MCZuAFibDG2dZr0DSBo0JEaIkueNMKBJ4WwrkS1jGt+KmDXTGCye0hoWiHhDAESBgVIh0GFhji6egosdlAQ/GCrfFOdxn5bAwrUaMjkchSdQFMxBUlL0HK1wHGDmUZkRnqCA3qQG1rfn47MQqg4J6ts+dXDrysZK46RL1Tch2Q4RaGtoNC2Clc+KUezfVAzdc0bYcczqU5sEPlMBC0RNCTig2jAFh8REcQMb3EsWA1KJCmIpJN6PAr2Z2CpmXXUwk5gghNDMmTWIwECq0zBqL5HH1oMvlShvPIx+6cr2va3ly9YZ4KCmcmiZhnHeI4NC2R6YrRha4lVpsIhgUl0rpQQ6icgsRvwTnTkcyXUkYn4S7XmX9q6D4I8upkUel0ymqO6PzpweqQkJ4k5knU0WCaHVNxnyJ8VOoQjxYOOzyQQeBXGCtIpzK6KD5Hu1HaNrG+NHIiTsWpApVp6TpF6I1Ha6VCP7o5jSjDEFu7PFxztG2LdhuOSiXQ3Eyj+W7cRR2RLfdRusmGrkzbiRVILLzaFnKHCl6giIghUpopskITQ/hA+CVIYNhztKgFhCMJcMV6rbMxrpH8ts/3x7Fo7cTkZf4aRwCGeIlXJDhEcDGEEBj2qiN2THvJgpiuAim6XCWvUyjJGTuYXgfumCbycmpdjDDCqpgvuBgSogyWNEc0fZlphnkDVGzXzJSZh0kJCdGuJS0gSqeCza8C4gqm0MTtd4axI1oLpDRHUzptJ2rq2ZKi3fWFikMzUbbQ+CPKo9+Axa+jdbqw7hDR/NBO4/s9DSMN0iFNE7SdokcwSpJXHhoz8xM64aVG4LeNHBF0hXE9AW0XkkbzWV6vExWCKhJZyaBOl8wITki6Hi81q3mgyKbhQlAGzhYQK+IvDG0gb0RFDBVmzTyukCwIV+91pGtSopnHCJUZQQF5apAoMSSFIByOIb+EwIbQFM7fsABQmcUUQwVYM48rJLM8p+9cINgSllR+Yq48oJddhpKHS2UF8Yqgh3hDTUOxzst1y+WdsJxxOObltMwWiV1uH7dj/kjmn3BjbQz6sT2HaSMmkDJI/YD3+SLvO9y4w1aEBNZ0Atim34IHVBVVuBlXCQuySkJjw/1cnr2xKGEWXoMwg1itrG2JODwGSadfdRxKjqhoZ/E2mKk5Wg3Kx69N6n7TZPkINld7+DyxenAkaLmStYtt5rtiJJacjuy2TsRsJSKGuoF4OZaHAjoWb+2pIw4eysjkDIsmJERVIjjJb3rJRFln6ToUPTZTkF53JEjaLEFWfElpRpxEI6lBXDpU5BkMySaKrjqy9ucGInPohioEppRCwspl85hTBDjcQ0OWM2t9a2t9Lgdij+Li7iUlLIU2Uwwpy7RCWQTpxGLDSCKTmvEIkVkhqAlie9ns1NTG6GACrKccnTZZIdABYJeQYHzUX/TNTIsA+m97Q8Oi3fuX7avbXN9Q09zc2tbWrahoWLfycwf0u2DQUZUl/A8jnTBtjVTUQQy5c5ojNntlCMM7TRmXsFib6Wm2Fku0qZxsNtfailLxr7KoYF1hmg0t7UqUZrBDGgi80Byyu5qaHt2x56WP9u1qbG7OtTW15ppzuebW1pZcrimXa8zlju/d4/bxx507sNpWENOPaZFqzMtpeC1MBzJTYG4oD8VmQ2Q5xAmk5zIMI5XeaFFJNpBZlyZ2wI5q4hAVSJduXEV20d79D23btb2huRUtzuXKi7JHlxX3LS1GfzcfaNy4v35/U1NTrhWH3/cnjf2XMSPofWDPHjqjS+a2EY3fPdG/7zN5dahni4KH81C8bMgwhQy/3LAYLiZe6AK+WSjO2YmxkSbThGwdGD+5a++cD3a35NrQu+qyklnV1dOqqwZXlBXj3/NmMg253Mp9tb/ctPmJLTuaW1u++vqq0mzmi6NH4F8Im1ZHCexpxGawp/JN++ty7ZmxVT2JDxfRpQaZQmLp8beFjY0zObkuIe7HiOOk0YlcgEyLV6a1/DgO0QzYSaA9xLK5trbX99e3tlHIrOqq64cPqjSa+LMLrNKtuPi0/n2m9Kua2KfXt1esa2lr+dprq4ZXdpt1zABTXmIDTNJsZvlHe89fsKSlLfPEzFPPPuZo02FvLvj09RCTlufFa64jzWZv+prisllpdCKRK1B1wNT5EOQjhpwIehmgA1p7pqSoaPZRfZ7JZGb27T2hW8lTy5bPW7t+0+69ja2tfbpVTBk+7BMTx2ONj5Ovjh2Jz8ZvLF+Dc/gNS958cdb0Ub16kIScRkxys1upApzlv/rayr0NTZlc2+q9NdRoe0jzwc4FcYybCMV5hcZdTNBroSfGOm/8HO1Qk02LwU5cuFuJLg0yzSO76w0QzSlgzvIVtz89b8OOXaZxJtxElJaVXX3KxDsvu3hQ7954+9/4ypu/WfdOpq192sDqZ8+f3rOsFG2Ti0KXlYq/dfnqH7y1Hsak/lUvXHhmVVlpJOp4/xtb07xsa2srptnBVUdiObwjEl0FgdRFc57N4m+zfOvJZ+5asNDE4SAvHdynqntZ2a662praA/TlRGvrCYMH//HGa08YOKCuuWXW8y8v3b4Tvb5m9PDfzpiCc7nRMYceJMxuu3v1+m8uW9vWnqksLlowa9oZA6rNYYzj1ew9XTzb4RpSGuRJAeEFMlhCAnt57by0dZd3KIBDNdHUpIGObQkRIy3GHNGUM3vrn5/9wdz5GdyVtLdfMXnCl2dMnTB4UEVpya7aA/PWbfjh8wvf27kLvOMGDpj/LzeO6Nfvndq6mc8t2rq/NtOWuezYIT+cMmFUr56SZtuBg3euWn/v2+9BGYL3Tp305XHH0i6lMWYZFObaQe4Ol06RWQ0hyJtwRLNWhykPhWBym/zZB15ddv0Dj7QXZcqyxT+afclNH5/uCW/Zu+/a3/7hpQ2b0Iipo4977suf71lRsWTX7sueX/LRgYM4pvp2rzhn8IAJ/fuWZrNr9tUs2L7rw/qGDO4MMu3/dsr42yeMpXcOBuZgtke0zlHgfDVNbDZkqGXZhsssh6nReTLZRPGNO6mu2b7jrHt+uae+Hn8D5+dXfxLHMvHsBYl8ZGV31dbNuve+NzdvheuGs6bfd81ssF7ZteeGRcvW7d5LPeXPQzpazR95aWur7l7xo9MnfubYoUaPpusaDRMDc3gbM9/bP6TpELZFTZOVi6dRfMcdd6A8ekPxG0evhd2hUcibLiZi0927aOm8FSsx1RvOPP27l1xgGkAtoMaYprFwZXn59FEjHl+55kBz84rNW/v1qJwyfOiQyu5XjRxSWVa2vaFxX2uLjSkuGtKz8nNjR9w/42M9cy1feHpBc1v7pAHVZnZ427jHwl7BPPRArkGXLQQxxAskBI0CT1XO0eoWPHHPiCIMJoRr4aS5ImXTy2xm5bYPPv3AQ/0qK+d8/trqnj3oPU4e4gnXADgSsk+vXnv5rx7AfTlO3w9e/6nZE0/ihHXNzetqarfWN+Ta2gd0L5/Yr0/vsrKn1m244en5OLf07NVr05c/e3RlJWSzdFRD2E2B4zmT5GMv1micdmlbBzJfyOzSawQitfswVI3WpEO1OX+ogu6ZE0Q229DcXFJcVFqMK3pCsGDNhhwiMIyd/Y/nF37r8adxHVJZVn7PFZ/4/BlTQultNfu/v3Dx/39jVRtuLNsys8aNfuzKS7qVlpACdEXUi0x0MajXXhRrYg1ZX4EhwmkfJzTaD1Daaa40XIUGJg4thKFC0wHTd5hUE0665KPzGcGuNVR4e+Yrjz3187+8hPsc+C8cf/xnTz35lKGDe1VUNLa2rN+1+89rN8xZvW5nbV2mrAxdvnLS+F9ecl6fbt2gh2T0NYdTi+phULvEDl1RmLE6JIBl5pnUaE/rsA2pUXrXmwJo4tQDajEtGHLro7TEs+2GC7fst82df9fzL+boaTV99PXo2aOyoqKptbWmoTGDG/fiYij27dXztpnTv3L6x/DARPZW2GSTkDNHCSOL643GXbKMSFKjQ3WuRBql04Vk7U2wIxXM35yRI1IxqSV1wzHh490wd+3b35m7YNn2HZnWHHWWPszxUYd1tk/PHp8cP+6WGVPHVveDNHUZaxNmVjyZKGnM8qbDw7S1RIYEccEw3vjlnXZ7Nmt5IB1/kkT7uFmhK95Ec0jjEwo8XA2YLkAEIyxxpoHb0C4D86qppXXRe+/Pe3vjmp27cLtYWlw8pKr39JHDzhtz3Ig+VaThWsyK5lPICJGvMwvPgyO0nagREkz6jo5oDtNrqHvDhHy6TSZPrHEcr8IiQKTZCx3nw5YG5hzCJxJ97KOnlNPl5RYbjTaDFZPNagYNhy6PuMmQcpywlBN5YwFJAyMSf3rHciKKKI0IrsGYsnGYjthJEeDCBBdEYh0lItt4Ydgu4ajHX/ckFBafFPiNgKYTTv9BDA9YGeChkeccksmIsBA1z4TRJr7oINZiv7aBsJhoxzXMdL3HpBzAPA4TRa3FoLisrglgGs3YWG5IyfCiw8586rG4VxANPVGJN1SjQHfWhojTLlluI1TzGBt/25aajZ1BT8zINgqHsmIFTso6bAsu4lIKEMu3fyVMKM7BwQJ7hYbSxBQSTQ4Ls3RSgPTXZumyLW3R0nGWk7eCQjSfkyxnj2dimp8o4NRPd+cqV2TbN4LyQTFyKzxukrhDtO2wSENoxoUvlTnQbXWAUMVgll4LHwZPNN5HCSWimV1bexv9eU7i04o2RDJEUXYA+2mNxbxNzF5Sqnytbfz2p7H0njHSVp9jTQbzwcs9Bscc6S4vhbCHMpmYAlYe0WhE0Tw0cuZ+yRNUs7AeF+ARE4bZzK6amnuemdfc0mrPHpkMrnA/edqpR/fp/esFL9x88axhRx+FQO4FUlGp5j8/CYG0WA4PwG3PPPX68ideef2j2rph1f2vmHrax086gXJlM0vXb3z8lddvufTiAX2qWJ966XRYAGr/+cw8XKJ86YJzjVe7iWxm7/aFS0pbXZ+2mSOI6DFihtCUD0Ojr2MUwHCB6z11B3761HPdysr64tmFWQ42NU8YPuxAY+NPnnj6ijOmoNG8D/jYRB47RE8pqesNTVac1gX3Dx9/6tu//+OJw4cOre7//MrVv/7Lwh9f/+mbLp4F16q/bf7Rk8987pyz0GiKBITGGVFqobP/8OLLFeVlaLTluLxEN6WYt4Qc3UYIVLz0Ig3VICtqJr3hiCGnDk2P2+BxPGCW0EJxLkZFRXTbcON5M++4ejYnQaay0pI/v7a8rLwcXitj5r+7trY4W4RbDICYI70PMplyfANA4wy+8y41NprV2prLtbc1NDX/4tkF50488clv31JWUrLvwIFr7v7ZN3/38IWnTBp2VDUSdS8vb8Ej9lwOX0Vyi/fU1UGqH74ZoFm045lUeWkJYnEZXloMiqV9tL8Wj1z69LCVUK+9hftgCvM8dqgJ3CKL0EaOaEMOOyiIGJIkRNgF2UymW1kpDmrh+kY2+/rGd/7fw4+ufH8zbpGnHT/mu5+6ctTAAXOWvPb9R5985Jav4IBdu2Xr1Xf95y2XXfzZmTOaWlpm3/mTodX9vvfpq/DLD9yFY4VmoS+/uekLL7+9oWe3bv/13IJ/++MT2DGX/Pvdnzlr2vc+c/XW3Xu+9cAf4MUOOG3MqLuu+9Tgfn0v+8GPVm/ZhlPHhJv/9bc3f/G0MaNRyW0P/entrduKi4qnjhv975++agROboiRxunqMWszQcLSbOYzjdbUKf6Ro3u3MuOQ18XFReu2bn/i1WU4kz6+9LV5K97C0ar3y/pt2y/9/t079u2789prbr3i0sXrNlx+50/21h04afiQDdt3vLhmHUpY8OaqNZvefWzp67Df+WAHhqMGDEBnr5p2OuzTvnH7Lfc/+NjS1/AWuWr6GdW9e50xdsysySdhH9xw7sdnTZ6Ad8Nnf/oLSP3sC9fd+0/Xv7J+0y33PwTy584+a2CfqkF9+3zjsouHVVe/u+PDT975YxzV99/8JTBR9lU/vKemvp5PVbYTuqGAMOTJcCv1xGxAfGeYPWNPHeqEJNwkA9KcNVGdI7IZvDfnLn/z6WUrAOAHAsOrq9f+/C7zRrZh9y14ASfuOf/61eMGDQRn1ICjZ33nB48uffXG886eMHzoC6vX3nTR+fPeXHni6FFrNm/dU1v36sZ3SoqLz59ED6D/47p/nDRy+Jylr815+dWfPTOvV/fuX7rgnNuuvGzysSPOOWk8dsy1H58+/Oij6hsbr5t5JpgnDh+2s2b/mePHLVm3oa6hYfYZU+6du6CivPTz586E2rd//8j++oZbLr0IRzGK+/onLrzunl9iR1457XTX6/RDG/G8cE/ciLYegi+c7dSZxH2MQTra7ck8BENvbG751FnT/vnC8zP0/4mRwXsc5we+ozNn5szaLdvGDRnMXUbEqaOPHdCnz6q/bcHOOGfiiX9c/MqKd99b/betP73h2tsf+tNfVq1etHb9CUMHjxk8CGSoXTvzTLxqDtSv2bL17ief+e4jjx0/+Jirz5yKH+qB0NDcgjWe56H1+Fhe9s679Y3NeOqN3Y/PALhwfYnv3WFgeXvbdpR047334a2A6RUXZat6dN/y0W640GBz/edmbfipK90T2Fbe0fGzXe6tfS84PNpat4tkCS0aUSN5TGNAVdWJw4ZETmvh/+aBgnt177b5o90t+DgqpQ8JXJAcbGrCeRb2rEkTfjX/r3c9OReci0+ZjI/QX81/YfOuj66ZfgYO6lc3bLztwT997R8uvOhjk6t6VE47fixOuzgA33j3fTSaZ8dnQ5ydzr79exNHDrv9ytno+M/nzn9k8RJbBV2J2DlUlJZVVVbOveOb+LYMncWya3/t4H79YDhyfMswz9VqxAk8YpfVoIG5cUAbtay2tUgH6rEwc4AYXZImF0oHWFN/EMZFJ09av3X7rxb8FYcWfnb04z8/W9fQiBMraCePGjGwb59Hl7w6dezo7hXlABevW7+zppa9x/Tru2rzlv9z/4NvvPMePg/xITn/zVW4FDl2wNE2Ra5t/8GDePfgs3RXzf5bL7/08qlT8Mn811VrzAWMrQT7tbGlBZVcePLErR/tfu6Nt3BJPqR//98tXIzLmP31B7En8Klip8QbO1CnBcHJcF3nLrGLMNqleNlTByEE8katNSK6iUwXhMMZ0+B3MUcwHTPBdcjVd//soa/fdM2MqTgRf/2/f3//Cy81Nbds/GDH/738E2eeMA57A+fcKccd+/amd881Z+Rp48ZUlJbis2viyOHQQS9+fdMXvviL35x563fwMw/8ohex50+ecNX00+EdiauFbOai7971lYvPv+7sGUOP6n/dPf91/JDBOBXgfIITGh9PYwcPuu/5hRNu/uZDX/vnK6efvnDNum/97uEHX3wZe27Tjg9xuh835BhzYoakWaQJugPwAI8a6k7lMmcQYNt7UfsDGrqYZE0bzCPiWZg2WkLjQiF+dl/dgYcXL500cthpY0fTO4Wu2M07tT2zaO3bb72/+YLJE0YfMwizevaNNxevXY9zLq6LzzrxBEpgUuCYxVGMc0XfHj1wPn148StVld0vOmUyvSnokXQRziT4sF2//YOy4uKTR438h1NPxhkZXlxov7BqLT4AcNY6e8KJqzdvmbPk1YONTRecPKlHRfnqzVv/ccZU7GxcWeMQ3nugfvbpHxvcv39rWw5DVFJaUnzexJNmjD+eE6Fy82WumjhmzT2RVjCCDmiXgAbnvcsP/k2jPaq0LzQ4WYhbBEK0xA4Kg0TXNrQDLM14wKZ6CHL/kQJfFDKT62W2FxsxbTyxwhSMuvtDGhHLPXjhsZOip9jtuPg1G+fq4tbslfhVh1bieUtPDZv8SE29SF5Mt9roQMBiz3HmKLQFkwpJ0tAq0tCIsWHWxmX2BbWLmUbNXga4WBNnVuIlebeENM6lcNr30ZBLsBLR3rSwkRV5LppTCSE0XC1Jd4YsoddgYyg5XHCwRW2omrph70/M4YNQ84yYREQDBOKZhZ/Tw7Q0AxIBBneQuKYfXJUh2JVBoERZOIRlMTYGX2DI24uZPB+q1bCMhknGQXYsEjofhzrEyeliyHaKMLkce9Vhebxhj0AY8kuQPAZ1Gu9Ge5BgknyaKzKXpDlzfiCCSYG+oJv8QosRQy/Tbhqy0Z5B1JY9eyxCgaSKBYFk0tuDdhkI9AsE2AQZ3HDqmhrXbN1KYcYLDsjIgyHODLzYGlwxxqt6RUlNQWZrV0bF2qqtmqJt940lY6yo/UBoPuqlvbBjIcTGAlHsQLyoAC4im8EDHELoIDKGXFoag/m4BCYDJ0cC6dcdQHAJOH/FSiHg7g6PL7bv3QtCbcPBpRs24sIDXvz6YO3Wbe/t3ImE7+7c+crGTRt3fGiay6fazI6amhXvvb/8nfewn8HZV3/g5fUbEFLXcNDMiUAqD/+fbmaXRHNzU/CmbtsiaKwVgloj/gUEg6wb2rFY7H0z1mQL2KPM9TjKj+87cBDZ48gdXzwr6ggWAzrDQLRXsnjCxy48wXtk0VLcXj++9HU8G2lsamlsan5m2Yrd++sONjQ9/NKSspJSFPbgwpfLi0sWrlyzp7YWl4+4yUT4c8vf+mDPPlzqLd/0Lp5LQaFXRbcXVq5Zt2U7UpgXZUSRZk5R2TQtGcl8xTCzplWIGBfD0MdIZIwnPjJQuHIkt3UMHsta3GKAKLYYLjpli4s89uBS7MN9NT0qKnD7jutC3P7h3gT/kAv3lrlM20nDh+JGEbdFuGbH3eCQ/v32H2zAfuUb7h7dKqaOG4OnH3sOHMATGEQdP+SYwf3lJpAbgpKSqpImslOGXBaDSXHsBx3vOSzxuPiI/IkSIY2oWCStxwAuQmwkEpgWkfHIDefuhxctmbt8BR5v4vZk2+49leVlaByePuPo7t8Lv1QqxzX1UVW9kR5HJW5wYPTr2aN7eRlu3Af2IXxAVW8crNg91b164SZo0rHD8Xxx0wc78AwEXlWbGaWtvJKZxmCiy+lkcWqjd6z5H/UhL9tFmS2Tw3WMdHgGSILnQagTbUKJLTk8sze/1IDd2ir31qZ6cLFgGlJZ4jCDxyY79tXg9v2iUyb1rqy0jeYgI0Er0RA9cWnDi9IuaMCLgnI5PNDCnqZWd2XJm6MrghKToMzTFUaXDdLBOaf24MEe3bqVFGGfmWbk10uoJ3+A8xrtjhrtqXtDJ+Vv89Ni3njvYi5f9QiM49l1Al0J2+Fa8/PYCHTn6HQWKtGLN9QubeenxbymCh0LOwnzKIdpmJ5JF8l2uC68CHPZWjjdtSAsTyPazq+dxtST9BTSQkDTrjTbUwuHOtDzhi5BxPBCZEh3Bh2ShA1D79UQZyS1TYEjADr+nOCQxJq1Wpqta060dSAIYSKNCFmMRE2jwpd3OjqZG0OZHgYJIkasVo0avQCIssCVx5tnYnmiIvUkSweKnSdRkkYiZh6o0I0uvJ3UY3oYFCKetkyAK0rkp7m8WKZh7eFa03NJSKLBgRyiRRLJnrI3jIewWPzUwQFhWIjEtfxRWqFpOOLDFB7ZG0rKNFwIHRpeam8o4TqRtkHwhhKiDD6iFZBoFiCUGBcHnYo3Ex6yk22PwCoh6CHeEFEuYbyMYKRpsPEKpSRIkwUswKBzdMexeRJzDo/AQ70mmiN5+fRQ247OGRLWmpzg7ioU5vUnEk3F5tAh2nYlAKNGm+eDCgsnECKOTlvIeAQeeiCHeHVgyC/P69HgZTXGE9c6nQ7XNmfBOhFkL3S0lKQWELFii6AYSS5g5hytsybxRCTZyB/ieROHHpicRqHMD9dC0YLaTiQIWIjBXdYdQ1RiiriaO0cj0guO82IjzdQ2SKyjQW3HVFxGrtKjAfSq9wgi5eE8DNfCZ0NHeWQM+eWF6KFXm3al2OYczbOSuekiEKazsitPGpHiwFjWICwALD0RZzB0eYimaTtWiduLMlMxQAujtFfrAGeXGOzVfGej0eYLPi/AuSmQEwPBi22dTCM6SgIlXKJYSsg8TPQKUzgcxWsO0TYQTdB2IplBVMgvDPV02Csgq2mCjoItlXgco4NGGz/7OJLXEiaZYDCoXUbFrnQCjcMmlwuTLB4HfnYJLkwKV4seahsUHnprl9nvoxcrGRJxBkVKyJ4BQhIHf13HPIn2fBDVyeDVQ0+6kKEoSCIIii0KGtE2EwSBweG6KgaFKQSNS6L8hoSIkZ/PXi5Gl+SiIEMfhtaVxHDM+LZwJuKQBAuFmDCs+MWADAUktllCxHlsxSDohYdROufzaICZIwaGHiJSYgg5VHN57FakFI4gOnXEXJ4Q+zxQSfjq4HNITDQI0Jy0EMGD6FgKnUjbYRQQ1pTpaINjgXgiGDJNyInKLM4uURDD/NQiHie6DIfqEqzjhAaDbUEimot0W8sEAWQBI36SpWV1Ig4Xb5oaCMKBvNBgMM4IrxkRvnax7RUofAkRwxzR+LowviSqCMVniyNu5BeJc+1IK4sthg4JQSDI2IWkWhY2dEJxLRt6PYXkIX6Uw+riLlyI0/P09JqloMNgJGgsjgKHvUxmkNfM17bUxlEyZI4MYehYjYe21kcUBwotceiBYXYJTzDox1nB4ikGfgsIDQa/4BCQSd5QE8SlDW3bNE4TLvGKC4ZMmL1pNB0CO1HK4+QZFpiFFcwpI2i01K3TJIJWRfG86r0htwRSXCUbnohOBJoMtY0QwTkcQ/2SirgAjyzeREOTte2RC3QpWtBoKCq31eeKvWR5hqECkY2KtMzTlKGOFTBPLu0SPhtaStOsLWwzBhkvjWnbC8/jAlPyMs1c1qlGi9sT1cM0DuNY80uHJNpaR8dqcpoUcG+e3lCLpNmUlBMrhu2LQkLTC/KGId8i/GHIA06Tv+g0r8SGhKiUyHLZkw4iVgi40RRAYK/OpW2hMjPNJTQxIMvKXnY9ZE0JKVDc/BDZBWk5hx3qNqxbZ5EqBYQhNudmhMHQJfVpAofABYP7IoFiSGAeQ8hSJ5NZMy1QyAgXBfzy0vzI0XwuCiNN4vDiKCIxIxcnk2FD1mENoiNGyCkcOSwinC4mZS/vgJmFt25kwU5tEOuF66F4YXCXBZEsjMtQwrnXMhQCGx6uh2LDEFuHMy5eMTSnEFuLw45PJP6z3UguzopwFvDW7OZOwJZYyRwioshRshYchs6icbGZIEM2QlAQGLxIOnbJ2vkP/1ZuWKQVNgdyc1lsyBpuwb0YxpkgNstxuJWOb0RNmDAkXLyiIC6REUQMUZAoIbPBTM33CId/SEe0VeUfo8ey49dM7t+qgMSNBUEMAeOFOQ2igksbE2VWTDX//MpoGwIrkjA4WHhsSDwkAVZiKRqlLVoCHMpK//l0jWlblyA4G1jzYgq1TiMsRPhx3Ww+9ByXPwHpH6PhLygYYlCLpXa84UhXB2flkSnJzBJtdQRPkDkAdQGaq+XJ5nnYNKTqAt2Wm2WoZt5uB0piuGwC/t6DBxEqxLiRSHAgtqYQtJRMOzL/9CmT+R/QlSnWPMkd5AAAAABJRU5ErkJggg==" alt="FlowState Learning logo">
+      </div>
+      <div class="header-brand-text">
+        <span class="header-product-name">EmbedMaths <span class="header-product-sub">— Addition &amp; Subtraction</span></span>
+        <span class="header-tagline">Build maths skills that stick.</span>
+      </div>
+    </div>
+    <div class="session-bar">
+      <div class="meta-badge">
+        <span class="op-part" id="sessionOpBadge">ADD</span>
+        <span class="type-part" id="sessionTypeBadge">2dp decimals</span>
+      </div>
+      <span class="session-progress" id="progressPill">Question 1 of 5</span>
+      <button type="button" class="btn-settings" id="settingsBtn">← Settings</button>
+    </div>
+    <button class="back-btn" id="backBtn" style="display:none">← Back</button>
+  </header>
+  <main>
+    <!-- Launch -->
+    <section class="screen active" id="screenLaunch">
+      <div class="launch-grid">
+        <div class="launch-card" data-path="algorithm">
+          <div class="launch-icon">🧮</div>
+          <h2>Algorithm Practice</h2>
+          <p>Formal written addition &amp; subtraction with step-by-step column reveals.</p>
+        </div>
+        <div class="launch-card" data-path="extension">
+          <div class="launch-icon">🚀</div>
+          <h2>Extension Challenges</h2>
+          <p>Word problems, missing numbers, true/false, multi-step &amp; estimation.</p>
+        </div>
+      </div>
+      <div class="launch-pin-card">
+        <h3>Extension challenges &mdash; answer PIN</h3>
+        <div class="choice-list" id="launchPinToggle">
+          <label class="choice-option is-selected">
+            <input type="radio" name="launchPinMode" value="require" checked>
+            <span class="choice-check"></span>
+            <span class="choice-text">Require PIN to reveal extension answers</span>
+          </label>
+          <label class="choice-option">
+            <input type="radio" name="launchPinMode" value="none">
+            <span class="choice-check"></span>
+            <span class="choice-text">No PIN &mdash; answers open</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Teacher setup (algorithm) -->
+    <section class="screen" id="screenSetup">
+      <div class="setup-page">
+        <div class="setup-page-header">
+          <p class="setup-subtitle">Configure your session</p>
+        </div>
+        <form class="setup-grid" id="setupForm" autocomplete="off">
+          <div class="setup-card">
+            <h3 class="setup-card-title">Operation</h3>
+            <div class="choice-list">
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgOp" value="add" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Addition</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgOp" value="sub">
+                <span class="choice-check"></span>
+                <span class="choice-text">Subtraction</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgOp" value="mixed">
+                <span class="choice-check"></span>
+                <span class="choice-text">Mixed (both)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setup-card">
+            <h3 class="setup-card-title">Number type</h3>
+            <div class="choice-list">
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgNumType" value="whole" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Whole numbers</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgNumType" value="1dp">
+                <span class="choice-check"></span>
+                <span class="choice-text">Decimals — 1 place</span>
+                <span class="choice-hint">e.g. 4.7 + 2.8</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgNumType" value="2dp">
+                <span class="choice-check"></span>
+                <span class="choice-text">Decimals — 2 places</span>
+                <span class="choice-hint">e.g. 3.46 + 1.75</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgNumType" value="mixed">
+                <span class="choice-check"></span>
+                <span class="choice-text">Decimals mixed</span>
+                <span class="choice-hint">1 &amp; 2 place</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setup-card" id="numSizeCard">
+            <h3 class="setup-card-title">Number size (whole numbers)</h3>
+            <div class="choice-list">
+              <label class="choice-option">
+                <input type="radio" name="cfgNumSize" value="2">
+                <span class="choice-check"></span>
+                <span class="choice-text">2-digit</span>
+                <span class="choice-hint">47 + 38</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgNumSize" value="3">
+                <span class="choice-check"></span>
+                <span class="choice-text">3-digit</span>
+                <span class="choice-hint">364 + 258</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgNumSize" value="4">
+                <span class="choice-check"></span>
+                <span class="choice-text">4-digit</span>
+                <span class="choice-hint">4271 + 1856</span>
+              </label>
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgNumSize" value="mixed" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Mixed</span>
+                <span class="choice-hint">all of the above</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setup-card">
+            <h3 class="setup-card-title">Trading (regrouping — ACARA v9)</h3>
+            <div class="choice-list">
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgRegroup" value="include" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Include trading questions</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgRegroup" value="no">
+                <span class="choice-check"></span>
+                <span class="choice-text">No trading required</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgRegroup" value="only">
+                <span class="choice-check"></span>
+                <span class="choice-text">Trading questions only</span>
+              </label>
+            </div>
+            <p class="setup-card-note">&ldquo;Trading&rdquo; &mdash; preferred QLD classroom term. ACARA v9 uses &ldquo;regrouping.&rdquo;</p>
+          </div>
+
+          <div class="setup-card">
+            <h3 class="setup-card-title">Questions per session</h3>
+            <div class="choice-list">
+              <label class="choice-option">
+                <input type="radio" name="cfgCount" value="5">
+                <span class="choice-check"></span>
+                <span class="choice-text">5 questions</span>
+                <span class="choice-hint">~5 mins</span>
+              </label>
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgCount" value="8" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">8 questions</span>
+                <span class="choice-hint">~8 mins</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgCount" value="10">
+                <span class="choice-check"></span>
+                <span class="choice-text">10 questions</span>
+                <span class="choice-hint">~10 mins</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setup-card">
+            <h3 class="setup-card-title">Session features</h3>
+            <div class="choice-list">
+              <label class="choice-option">
+                <input type="radio" name="cfgEstimate" value="yes">
+                <span class="choice-check"></span>
+                <span class="choice-text">Show reasonable estimate prompt</span>
+              </label>
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgEstimate" value="no" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Skip estimate</span>
+              </label>
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgMental" value="yes" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Show mental strategy after solution</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgMental" value="no">
+                <span class="choice-check"></span>
+                <span class="choice-text">Algorithm only</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="setup-card setup-card--pin setup-card--span-left">
+            <h3 class="setup-card-title">Extension answer PIN</h3>
+            <div class="choice-list">
+              <label class="choice-option is-selected">
+                <input type="radio" name="cfgPinMode" value="require" checked>
+                <span class="choice-check"></span>
+                <span class="choice-text">Require PIN to reveal answers</span>
+              </label>
+              <label class="choice-option">
+                <input type="radio" name="cfgPinMode" value="none">
+                <span class="choice-check"></span>
+                <span class="choice-text">No PIN &mdash; answers freely visible</span>
+              </label>
+            </div>
+            <div class="pin-row" id="cfgPinRow">
+              <input type="password" id="cfgPin" value="1234" maxlength="8" inputmode="numeric" autocomplete="off">
+              <span class="pin-hint">4-digit teacher PIN (default: 1234)</span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <button type="button" class="btn-continue" id="startPracticeBtn">Continue &rarr;</button>
+    </section>
+
+    <!-- Extension setup -->
+    <section class="screen" id="screenExtSetup">
+      <form class="setup-form">
+        <div class="field" id="extPinField">
+          <label for="extPin">Teacher PIN (to reveal answers)</label>
+          <input type="password" id="extPin" value="1234" maxlength="8" inputmode="numeric" autocomplete="off">
+        </div>
+        <p style="font-size:.85rem;color:var(--muted);line-height:1.45;margin-bottom:1rem;">
+          Five challenge types rotate in order: word problem → missing number → true/false → multi-step → estimation.
+        </p>
+      </form>
+      <button type="button" class="btn-primary" id="startExtBtn">Start challenges</button>
+    </section>
+
+    <!-- Estimate -->
+    <section class="screen" id="screenEstimate">
+      <div class="question-card" id="estimateCard">
+        <p class="q-instruction">Estimate before you calculate</p>
+        <p class="q-main" id="estimateQuestion"></p>
+        <p class="q-sub">Make a sensible estimate, then work through the written algorithm.</p>
+        <button type="button" class="btn-show" id="estimateReadyBtn">I'm ready</button>
+      </div>
+    </section>
+
+    <!-- Practice -->
+    <section class="screen" id="screenPractice">
+      <div class="question-card" id="questionCard">
+        <p class="q-instruction">Work this out on paper or your whiteboard</p>
+        <p class="q-main" id="practiceQuestion">22.50 + 28.93</p>
+        <p class="q-sub">Use the formal written algorithm — show all working</p>
+        <button type="button" class="btn-show" id="showSolutionBtn">Show solution</button>
+      </div>
+
+      <div class="solution-panel" id="revealPanel">
+        <div class="solution-panel-header">
+          <span>Step-by-step solution</span>
+          <div class="progress-dots" id="progressDots"></div>
+        </div>
+        <div class="solution-columns">
+          <div class="solution-col">
+            <h4>Written layout</h4>
+            <div class="solution-col-body layout-col" id="layoutPanel"></div>
+          </div>
+          <div class="solution-col">
+            <h4>What we're doing</h4>
+            <div class="solution-col-body">
+              <ul class="steps-list" id="stepsList"></ul>
+              <div class="mental-box hidden" id="mentalBox">
+                <div class="mental-title">One possible mental strategy — yours may be different</div>
+                <p id="mentalText"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-footer" id="practiceActions">
+        <div class="practice-footer-actions" id="practiceFooterActions">
+          <button type="button" class="btn-footer secondary" id="prevStepBtn" style="display:none">← Previous step</button>
+          <button type="button" class="btn-footer secondary" id="nextStepBtn">Next step →</button>
+          <button type="button" class="btn-footer full-width" id="nextQuestionBtn" style="display:none">Next question →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Extension -->
+    <section class="screen" id="screenExtension">
+      <div class="practice-bar">
+        <span class="progress-pill" id="extProgress">Challenge 1</span>
+      </div>
+      <div class="ext-card">
+        <span class="ext-type-badge" id="extTypeBadge">Word problem</span>
+        <div class="ext-problem" id="extProblem"></div>
+        <div class="pin-overlay">
+          <label style="font-size:.82rem;font-weight:600;color:var(--teal-dark)">Reveal answer (teacher PIN)</label>
+          <div style="margin-top:.45rem;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem">
+            <input type="password" id="extRevealPin" maxlength="8" autocomplete="off" placeholder="PIN">
+            <button type="button" class="btn-secondary" id="extRevealBtn">Reveal answer</button>
+          </div>
+          <p class="pin-error hidden" id="extPinError">Incorrect PIN</p>
+          <div class="answer-reveal hidden" id="extAnswer"></div>
+        </div>
+      </div>
+      <div class="action-bar">
+        <button type="button" class="btn-primary" id="extNextBtn">Next challenge</button>
+      </div>
+    </section>
+
+    <!-- Complete -->
+    <section class="screen" id="screenComplete">
+      <canvas class="celebration-canvas" id="celebrationCanvas" aria-hidden="true"></canvas>
+      <div class="complete-content">
+        <div class="complete-emoji" id="completeEmoji" role="img" aria-label="Celebration"></div>
+        <h2 id="completeTitle">Well done!</h2>
+        <p class="estimate-hint" id="completeMsg">You have finished this session.</p>
+        <button type="button" class="btn-primary" style="max-width:220px" id="completeHomeBtn">Back to home</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const state = {
+    path: null,
+    config: {},
+    questions: [],
+    qIndex: 0,
+    stepIndex: -1,
+    solutionShown: false,
+    extPin: '1234',
+    pinRequired: true,
+    extIndex: 0,
+    extTypeCycle: 0,
+    extChallenges: []
+  };
+
+  const $ = id => document.getElementById(id);
+  const screens = {
+    launch: $('screenLaunch'),
+    setup: $('screenSetup'),
+    extSetup: $('screenExtSetup'),
+    estimate: $('screenEstimate'),
+    practice: $('screenPractice'),
+    extension: $('screenExtension'),
+    complete: $('screenComplete')
+  };
+
+  function showScreen(name) {
+    if (name !== 'complete') stopCelebration();
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+    const isSession = ['practice', 'estimate'].includes(name);
+    const showBack = !['launch', 'complete', 'practice', 'estimate'].includes(name);
+    const heroHeader = ['launch', 'setup', 'extSetup'].includes(name);
+    $('mainHeader').classList.toggle('header--session', isSession);
+    $('mainHeader').classList.toggle('header--hero', heroHeader);
+    $('mainHeader').classList.toggle('header--launch', name === 'launch');
+    $('backBtn').style.display = showBack ? '' : 'none';
+    $('settingsBtn').style.display = isSession ? '' : 'none';
+    if (name === 'complete') requestAnimationFrame(() => startCelebration());
+  }
+
+  function goHome() {
+    stopCelebration();
+    state.path = null;
+    state.questions = [];
+    state.qIndex = 0;
+    showScreen('launch');
+  }
+
+  // ─── Number helpers ───────────────────────────────────────────────
+  function randInt(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // ─── End-of-session celebration ───────────────────────────────────
+  const CELEBRATION_MODES = ['fireworks', 'bubbles', 'confetti', 'stars', 'sparkles'];
+  const CELEBRATION_EMOJI = {
+    fireworks: '🎆',
+    bubbles: '🫧',
+    confetti: '🎉',
+    stars: '⭐',
+    sparkles: '✨'
+  };
+  const CELEBRATION_COLORS = ['#0e5d66', '#3eaeb8', '#f39c12', '#e74c3c', '#9b59b6', '#2ecc71', '#f1c40f'];
+
+  let celebrationRAF = null;
+  let celebrationState = null;
+  let celebrationResizeHandler = null;
+
+  const COMPLETE_TITLES = [
+    'Amazing work!',
+    'You did it!',
+    'Brilliant effort!',
+    'Session complete!',
+    'Outstanding!',
+    'Well done, mathematician!'
+  ];
+
+  function resizeCelebrationCanvas() {
+    const canvas = $('celebrationCanvas');
+    if (!canvas) return;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.max(1, Math.floor(rect.width));
+    canvas.height = Math.max(1, Math.floor(rect.height));
+  }
+
+  function stopCelebration() {
+    if (celebrationRAF) {
+      cancelAnimationFrame(celebrationRAF);
+      celebrationRAF = null;
+    }
+    if (celebrationResizeHandler) {
+      window.removeEventListener('resize', celebrationResizeHandler);
+      celebrationResizeHandler = null;
+    }
+    celebrationState = null;
+    const canvas = $('celebrationCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function startCelebration() {
+    stopCelebration();
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const mode = pick(CELEBRATION_MODES);
+    $('completeEmoji').textContent = CELEBRATION_EMOJI[mode] || '🎉';
+
+    if (reduceMotion) return;
+
+    const canvas = $('celebrationCanvas');
+    const ctx = canvas.getContext('2d');
+    resizeCelebrationCanvas();
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const particles = [];
+    let frame = 0;
+    let fwTimer = 0;
+
+    function addParticle(p) { particles.push(p); }
+
+    function spawnFirework() {
+      const x = randInt(W * 0.12, W * 0.88);
+      const color = pick(CELEBRATION_COLORS);
+      const count = randInt(28, 48);
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+        const speed = randInt(2, 7);
+        addParticle({
+          x, y: H * 0.55 + randInt(-40, 40),
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1,
+          decay: 0.012 + Math.random() * 0.01,
+          color,
+          size: randInt(2, 4),
+          gravity: 0.06,
+          kind: 'dot'
+        });
+      }
+    }
+
+    function spawnBubble() {
+      addParticle({
+        x: randInt(0, W),
+        y: H + randInt(10, 60),
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -(0.6 + Math.random() * 1.4),
+        life: 1,
+        decay: 0.002 + Math.random() * 0.002,
+        color: pick(['#3eaeb8', '#7ec8d0', '#b8e8ee', '#ffffff']),
+        size: randInt(8, 22),
+        wobble: Math.random() * Math.PI * 2,
+        kind: 'bubble'
+      });
+    }
+
+    function spawnConfetti() {
+      addParticle({
+        x: randInt(0, W),
+        y: -randInt(10, 40),
+        vx: (Math.random() - 0.5) * 2,
+        vy: 1.5 + Math.random() * 2.5,
+        life: 1,
+        decay: 0.003 + Math.random() * 0.002,
+        color: pick(CELEBRATION_COLORS),
+        size: randInt(4, 9),
+        rot: Math.random() * Math.PI,
+        spin: (Math.random() - 0.5) * 0.2,
+        w: randInt(4, 10),
+        h: randInt(6, 14),
+        kind: 'confetti'
+      });
+    }
+
+    function spawnStar() {
+      addParticle({
+        x: randInt(0, W),
+        y: randInt(0, H),
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        life: 1,
+        decay: 0.004 + Math.random() * 0.006,
+        color: pick(['#f1c40f', '#fff', '#3eaeb8', '#f39c12']),
+        size: randInt(3, 7),
+        twinkle: Math.random() * Math.PI * 2,
+        kind: 'star'
+      });
+    }
+
+    function spawnSparkle() {
+      const cx = W / 2;
+      const cy = H * 0.42;
+      for (let i = 0; i < 12; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1 + Math.random() * 4;
+        addParticle({
+          x: cx + (Math.random() - 0.5) * 80,
+          y: cy + (Math.random() - 0.5) * 60,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 1,
+          life: 1,
+          decay: 0.015 + Math.random() * 0.01,
+          color: pick(CELEBRATION_COLORS),
+          size: randInt(2, 5),
+          kind: 'sparkle'
+        });
+      }
+    }
+
+    if (mode === 'fireworks') {
+      spawnFirework();
+      fwTimer = 40;
+    } else if (mode === 'bubbles') {
+      for (let i = 0; i < 18; i++) spawnBubble();
+    } else if (mode === 'confetti') {
+      for (let i = 0; i < 55; i++) spawnConfetti();
+    } else if (mode === 'stars') {
+      for (let i = 0; i < 35; i++) spawnStar();
+    } else {
+      spawnSparkle();
+    }
+
+    celebrationState = { mode, particles, frame, fwTimer };
+
+    function drawStarShape(ctx, x, y, r, rot) {
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const a = rot + (i * 4 * Math.PI) / 5;
+        const px = x + Math.cos(a) * r;
+        const py = y + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function tick() {
+      if (!celebrationState) return;
+      frame++;
+      ctx.clearRect(0, 0, W, H);
+
+      if (mode === 'fireworks') {
+        fwTimer--;
+        if (fwTimer <= 0) {
+          spawnFirework();
+          fwTimer = randInt(35, 70);
+        }
+      } else if (mode === 'bubbles' && frame % 8 === 0) {
+        spawnBubble();
+      } else if (mode === 'confetti' && frame % 5 === 0) {
+        spawnConfetti();
+      } else if (mode === 'stars' && frame % 12 === 0) {
+        spawnStar();
+      } else if (mode === 'sparkles' && frame % 18 === 0) {
+        spawnSparkle();
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+
+        if (p.kind === 'dot') {
+          p.vy += p.gravity;
+          p.vx *= 0.99;
+        }
+        if (p.kind === 'bubble') {
+          p.wobble += 0.05;
+          p.x += Math.sin(p.wobble) * 0.4;
+        }
+        if (p.kind === 'confetti') {
+          p.rot += p.spin;
+          p.vx *= 0.99;
+        }
+        if (p.kind === 'star') {
+          p.twinkle += 0.12;
+        }
+
+        if (p.life <= 0 || p.y > H + 40 || p.y < -60) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+
+        if (p.kind === 'bubble') {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        } else if (p.kind === 'confetti') {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        } else if (p.kind === 'star') {
+          const r = p.size * (0.7 + 0.3 * Math.sin(p.twinkle));
+          drawStarShape(ctx, p.x, p.y, r, p.twinkle);
+        } else if (p.kind === 'sparkle') {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x - p.size * 2, p.y);
+          ctx.lineTo(p.x + p.size * 2, p.y);
+          ctx.moveTo(p.x, p.y - p.size * 2);
+          ctx.lineTo(p.x, p.y + p.size * 2);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      celebrationRAF = requestAnimationFrame(tick);
+    }
+
+    celebrationRAF = requestAnimationFrame(tick);
+    celebrationResizeHandler = resizeCelebrationCanvas;
+    window.addEventListener('resize', celebrationResizeHandler);
+  }
+
+  function showCompleteScreen(title, message) {
+    $('completeTitle').textContent = title || pick(COMPLETE_TITLES);
+    $('completeMsg').textContent = message;
+    showScreen('complete');
+  }
+
+  function countIntDigits(n) {
+    const s = String(Math.floor(Math.abs(n)));
+    return s.length;
+  }
+
+  function formatNum(n, dp) {
+    if (dp === 0) return String(Math.round(n));
+    return n.toFixed(dp);
+  }
+
+  function parseToCells(numStr) {
+    const parts = numStr.split('.');
+    const intPart = parts[0] || '0';
+    const decPart = (parts[1] || '').split('');
+    return { intDigits: intPart.split('').map(Number), decDigits: decPart.map(Number) };
+  }
+
+  function resolveNumType(cfgType) {
+    if (cfgType === 'mixed') return pick(['whole', '1dp', '2dp']);
+    return cfgType;
+  }
+
+  function genWholeDigits(minD, maxD, regroup) {
+    const digits = randInt(minD, maxD);
+    const arr = [];
+    for (let i = 0; i < digits; i++) arr.push(randInt(1, 9));
+    if (arr[0] === 0) arr[0] = randInt(1, 9);
+    return arr;
+  }
+
+  function genNoCarryDigits(count) {
+    const a = [], b = [];
+    for (let i = 0; i < count; i++) {
+      const d1 = randInt(0, 9), maxB = 9 - d1;
+      const d2 = randInt(0, maxB);
+      a.push(d1); b.push(d2);
+    }
+    return { a, b };
+  }
+
+  function genWithCarryDigits(count) {
+    let a, b, ok = false, tries = 0;
+    while (!ok && tries++ < 80) {
+      a = []; b = [];
+      let carry = 0;
+      for (let i = 0; i < count; i++) {
+        const d1 = randInt(0, 9), d2 = randInt(0, 9);
+        a.push(d1); b.push(d2);
+        if (d1 + d2 + carry > 9) carry = 1;
+      }
+      ok = carry === 1 || a.some((d, i) => d + b[i] > 9);
+    }
+    return { a: a || [5, 6], b: b || [7, 8] };
+  }
+
+  function genNoBorrow(top, bot) {
+    const t = [], b = [];
+    for (let i = 0; i < top.length; i++) {
+      const td = randInt(1, 9), bd = randInt(0, td);
+      t.push(td); b.push(bd);
+    }
+    return { top: t, bot: b };
+  }
+
+  function genWithBorrow(count) {
+    let top, bot, ok = false, tries = 0;
+    while (!ok && tries++ < 80) {
+      top = []; bot = [];
+      let borrowed = false;
+      for (let i = 0; i < count; i++) {
+        const b = randInt(1, 9);
+        const t = randInt(0, 9);
+        top.push(t); bot.push(b);
+        if (t < b) borrowed = true;
+      }
+      ok = borrowed;
+    }
+    return { top: top || [3, 2], bot: bot || [5, 7] };
+  }
+
+  function digitsToNumber(intDigits, decDigits, dp) {
+    const n = parseInt(intDigits.join(''), 10);
+    if (dp === 0) return n;
+    const dec = decDigits.slice(0, dp).join('') || '0';
+    return n + parseInt(dec.padEnd(dp, '0'), 10) / Math.pow(10, dp);
+  }
+
+  function resolveRegroup(cfg) {
+    if (cfg.regroup === 'no') return false;
+    if (cfg.regroup === 'only') return true;
+    return Math.random() < 0.55;
+  }
+
+  function resolveDigitCount(cfg) {
+    const s = cfg.numSize || 'mixed';
+    if (s === 'mixed') return randInt(2, 4);
+    return parseInt(s, 10);
+  }
+
+  function generatePair(cfg) {
+    const numType = resolveNumType(cfg.numType);
+    const op = cfg.op === 'mixed' ? pick(['add', 'sub']) : cfg.op;
+    const regroup = resolveRegroup(cfg);
+    let dp = 0;
+    if (numType === '1dp') dp = 1;
+    else if (numType === '2dp') dp = 2;
+
+    let a, b;
+    if (numType === 'whole') {
+      const digitCount = resolveDigitCount(cfg);
+      if (op === 'add') {
+        const g = regroup ? genWithCarryDigits(digitCount) : genNoCarryDigits(digitCount);
+        a = digitsToNumber(g.a, [], 0);
+        b = digitsToNumber(g.b, [], 0);
+      } else {
+        const g = regroup ? genWithBorrow(digitCount) : genNoBorrow(
+          Array(digitCount).fill(0), Array(digitCount).fill(0));
+        a = digitsToNumber(g.top, [], 0);
+        b = digitsToNumber(g.bot, [], 0);
+        if (a <= b) { const t = a; a = b + randInt(10, 99); b = t; }
+      }
+    } else {
+      const intLen = randInt(1, 2);
+      let intA, intB, decA, decB;
+      if (op === 'add') {
+        if (regroup) {
+          const cols = intLen + dp;
+          const g = genWithCarryDigits(cols);
+          intA = g.a.slice(0, intLen); decA = g.a.slice(intLen);
+          intB = g.b.slice(0, intLen); decB = g.b.slice(intLen);
+          while (intA.length < intLen) intA.unshift(0);
+          while (intB.length < intLen) intB.unshift(0);
+          while (decA.length < dp) decA.push(randInt(0, 9));
+          while (decB.length < dp) decB.push(randInt(0, 9));
+        } else {
+          const g = genNoCarryDigits(intLen + dp);
+          intA = g.a.slice(0, intLen); decA = g.a.slice(intLen);
+          intB = g.b.slice(0, intLen); decB = g.b.slice(intLen);
+        }
+        a = digitsToNumber(intA, decA, dp);
+        b = digitsToNumber(intB, decB, dp);
+      } else {
+        const cols = intLen + dp;
+        const g = regroup ? genWithBorrow(cols) : genNoBorrow(Array(cols), Array(cols));
+        intA = g.top.slice(0, intLen); decA = g.top.slice(intLen);
+        intB = g.bot.slice(0, intLen); decB = g.bot.slice(intLen);
+        a = digitsToNumber(intA, decA, dp);
+        b = digitsToNumber(intB, decB, dp);
+        if (a <= b) a += Math.pow(10, intLen);
+      }
+    }
+
+    a = Math.round(a * Math.pow(10, dp)) / Math.pow(10, dp);
+    b = Math.round(b * Math.pow(10, dp)) / Math.pow(10, dp);
+    return { op, a, b, dp };
+  }
+
+  function intPlaceName(placeFromRight) {
+    const names = ['Ones', 'Tens', 'Hundreds', 'Thousands', 'Ten thousands'];
+    return names[placeFromRight] || ('10^' + placeFromRight);
+  }
+
+  function columnLabel(colIndex, totalCols, dp, decStart) {
+    const fromRight = totalCols - 1 - colIndex;
+    if (fromRight < dp) {
+      const names = ['Hundredths', 'Tenths', 'Thousandths'];
+      return names[fromRight] || 'Decimal';
+    }
+    return intPlaceName(fromRight - dp);
+  }
+
+  // ─── Build algorithm model ────────────────────────────────────────
+  function buildAlgorithm(op, a, b) {
+    const aStr = String(a);
+    const bStr = String(b);
+    const aC = parseToCells(aStr);
+    const bC = parseToCells(bStr);
+    const maxDec = Math.max(aC.decDigits.length, bC.decDigits.length);
+    const maxInt = Math.max(aC.intDigits.length, bC.intDigits.length);
+    const padA = Array(maxInt - aC.intDigits.length).fill(0).concat(aC.intDigits);
+    const padB = Array(maxInt - bC.intDigits.length).fill(0).concat(bC.intDigits);
+    const padDecA = aC.decDigits.concat(Array(maxDec - aC.decDigits.length).fill(0));
+    const padDecB = bC.decDigits.concat(Array(maxDec - bC.decDigits.length).fill(0));
+    const cols = padA.concat(padDecA);
+    const colsB = padB.concat(padDecB);
+    const originalCols = cols.slice();
+    const n = cols.length;
+    const steps = [];
+    const trades = Array(n).fill(null);
+    const borrowMarks = Array(n).fill(null);
+
+    if (op === 'add') {
+      let carryIn = 0;
+      for (let i = n - 1; i >= 0; i--) {
+        const d1 = cols[i], d2 = colsB[i];
+        const sum = d1 + d2 + carryIn;
+        const digit = sum % 10;
+        const carryOut = sum >= 10 ? 1 : 0;
+        steps.push({
+          colIndex: i,
+          colName: columnLabel(i, n, maxDec, maxInt),
+          op: 'add',
+          d1, d2, carryIn: carryIn || null, carryOut: carryOut || null,
+          resultDigit: digit,
+          annotation: carryOut ? `Write ${digit}. Carry ${carryOut} to the next column.` : `Write ${digit}.`,
+          mathLine: `${d1} + ${d2}${carryIn ? ' + ' + carryIn + ' (carry)' : ''} = ${sum} → ${digit}${carryOut ? ', carry ' + carryOut : ''}`
+        });
+        carryIn = carryOut;
+      }
+      if (carryIn) {
+        steps.push({
+          colIndex: -1,
+          colName: 'New leading column',
+          op: 'add-overflow',
+          overflowDigit: carryIn,
+          resultDigit: carryIn,
+          annotation: `Write the carried ${carryIn} in the new leading column.`,
+          mathLine: `Final carry → write ${carryIn}`,
+          pendingOverflowName: true
+        });
+      }
+    } else {
+      const top = cols.slice();
+      for (let i = n - 1; i >= 0; i--) {
+        let t = top[i];
+        const bv = colsB[i];
+        let tradeNote = null;
+        if (t < bv) {
+          tradeNote = { old: t, new: t + 10 };
+          trades[i] = tradeNote;
+          top[i] = t + 10;
+          if (i > 0) {
+            const lendIdx = i - 1;
+            const oldLend = top[lendIdx];
+            top[lendIdx] -= 1;
+            borrowMarks[lendIdx] = { old: oldLend, new: top[lendIdx] };
+          }
+          t = top[i];
+        }
+        const diff = t - bv;
+        steps.push({
+          colIndex: i,
+          colName: columnLabel(i, n, maxDec, maxInt),
+          op: 'sub',
+          d1: cols[i], d1Effective: t, d2: bv, trade: tradeNote,
+          resultDigit: diff,
+          annotation: tradeNote
+            ? `Trade: ${tradeNote.old} becomes ${tradeNote.new}. ${t} − ${bv} = ${diff}.`
+            : `${t} − ${bv} = ${diff}.`,
+          mathLine: tradeNote
+            ? `${tradeNote.old} → ${tradeNote.new}; ${t} − ${bv} = ${diff}`
+            : `${t} − ${bv} = ${diff}`
+        });
+      }
+    }
+
+    const resultNum = op === 'add'
+      ? Math.round((a + b) * Math.pow(10, maxDec)) / Math.pow(10, maxDec)
+      : Math.round((a - b) * Math.pow(10, maxDec)) / Math.pow(10, maxDec);
+    const resultStr = maxDec > 0 ? resultNum.toFixed(maxDec) : String(Math.round(resultNum));
+
+    const rC = parseToCells(resultStr);
+    steps.forEach(st => {
+      if (st.pendingOverflowName) {
+        st.colName = intPlaceName(rC.intDigits.length - 1);
+        delete st.pendingOverflowName;
+      }
+    });
+    const intW = Math.max(padA.length, padB.length);
+    const overflow = Math.max(0, rC.intDigits.length - intW);
+    const off = overflow;
+    const operandIntW = intW + off;
+
+    const padFront = (arr, len) => Array(len - arr.length).fill('').concat(arr.map(String));
+    let top = padFront(padA.map(String), operandIntW).concat(padDecA.map(String));
+    let bot = padFront(padB.map(String), operandIntW).concat(padDecB.map(String));
+    let res = padFront(rC.intDigits.map(String), operandIntW)
+      .concat(rC.decDigits.map(String).concat(Array(maxDec - rC.decDigits.length).fill('0')));
+
+    const insertDotCol = (row) => {
+      if (maxDec === 0) return row;
+      const split = off + intW;
+      return row.slice(0, split).concat(['.'], row.slice(split));
+    };
+    top = insertDotCol(top);
+    bot = insertDotCol(bot);
+    res = insertDotCol(res);
+    const W = top.length;
+    const decDotCol = maxDec > 0 ? off + intW : -1;
+
+    return {
+      op, a, b, aStr, bStr, resultNum, resultStr, maxDec,
+      steps, trades, borrowMarks, originalCols, top, bot, res, W, off, decDotCol, intW, n
+    };
+  }
+
+  function mentalStrategy(op, a, b, dp) {
+    if (op === 'add' && dp > 0) {
+      const scale = Math.pow(10, dp);
+      const wa = Math.round(a * scale);
+      const wb = Math.round(b * scale);
+      const wr = wa + wb;
+      return `Think whole numbers first: ignore the decimal point temporarily. ${wa} + ${wb} = ${wr}. Then place the decimal: ${(wr / scale).toFixed(dp)}.`;
+    }
+    if (op === 'add') {
+      const roundA = Math.ceil(a / 10) * 10;
+      const diff = roundA - a;
+      if (diff !== 0 && diff < 10) {
+        return `Round ${formatDisplay(a)} up to ${roundA}, add ${formatDisplay(b)}, then subtract ${diff}.`;
+      }
+      return `Partition — add the tens and ones separately, then combine.`;
+    }
+    if (dp > 0) {
+      const scale = Math.pow(10, dp);
+      const wa = Math.round(a * scale);
+      const wb = Math.round(b * scale);
+      return `Think whole numbers first: ${wa} − ${wb} = ${wa - wb}. Then place the decimal: ${((wa - wb) / scale).toFixed(dp)}.`;
+    }
+    const roundB = Math.ceil(b / 10) * 10;
+    const diff = roundB - b;
+    if (diff !== 0 && diff < 10) {
+      return `Subtract ${roundB} instead of ${formatDisplay(b)}, then add back ${diff}.`;
+    }
+    return `Count up from ${formatDisplay(b)} to ${formatDisplay(a)}, or subtract tens then ones.`;
+  }
+
+  function formatDisplay(n) {
+    return String(n);
+  }
+
+  function questionText(op, a, b) {
+    const sym = op === 'add' ? '+' : '−';
+    return `${formatDisplay(a)} ${sym} ${formatDisplay(b)}`;
+  }
+
+  function questionWithAnswer(op, a, b, result) {
+    return `${questionText(op, a, b)} = ${formatDisplay(result)}`;
+  }
+
+  function opBadgeLabel(op) {
+    return op === 'add' ? 'ADD' : 'SUB';
+  }
+
+  function numTypeLabel(dp, cfgNumType) {
+    if (dp === 2) return '2dp decimals';
+    if (dp === 1) return '1dp decimals';
+    if (cfgNumType === 'mixed') return 'mixed';
+    return 'whole numbers';
+  }
+
+  function updateSessionMeta(q) {
+    $('sessionOpBadge').textContent = opBadgeLabel(q.op);
+    const nt = state.config.numType === 'mixed' ? (q.dp === 2 ? '2dp' : q.dp === 1 ? '1dp' : 'whole') : state.config.numType;
+    $('sessionTypeBadge').textContent = numTypeLabel(q.dp, nt);
+  }
+
+  function updateProgressDots(stepIdx, algo) {
+    const n = algo.steps.length;
+    const totalDots = n + 1;
+    const dots = $('progressDots');
+    dots.innerHTML = '';
+    for (let i = 0; i < totalDots; i++) {
+      const d = document.createElement('span');
+      if (stepIdx < 0) { /* empty */ }
+      else if (i < n && stepIdx > i) d.className = 'filled';
+      else if (i < n && stepIdx === i) d.className = 'current';
+      else if (i === n && stepIdx >= n) d.className = 'filled';
+      else if (i === n && stepIdx === n - 1) d.className = 'current';
+      dots.appendChild(d);
+    }
+  }
+
+  function formatStepDisplay(st, algo) {
+    const place = st.colName.toLowerCase();
+    if (st.op === 'add') {
+      const parts = [st.d1, st.d2];
+      if (st.carryIn) parts.push(st.carryIn);
+      const sum = st.d1 + st.d2 + (st.carryIn || 0);
+      const main = `Add the ${place}: ${parts.join(' + ')}`;
+      const sub = st.carryOut
+        ? `${sum} → write ${st.resultDigit}, carry ${st.carryOut}`
+        : `${sum} → write ${st.resultDigit}`;
+      return { main, sub };
+    }
+    if (st.op === 'add-overflow') {
+      return {
+        main: `Write the ${place}: ${st.overflowDigit}`,
+        sub: `Carry → write ${st.overflowDigit}`
+      };
+    }
+    const top = st.d1Effective != null ? st.d1Effective : st.d1;
+    const main = st.trade
+      ? `Subtract the ${place}: ${st.trade.old} → ${top}, then ${top} − ${st.d2}`
+      : `Subtract the ${place}: ${top} − ${st.d2}`;
+    const sub = `${top} − ${st.d2} = ${st.resultDigit}`;
+    return { main, sub };
+  }
+
+  function generateQuestions(cfg) {
+    const qs = [];
+    const count = parseInt(cfg.count, 10);
+    const seen = new Set();
+    let guard = 0;
+    while (qs.length < count && guard++ < 500) {
+      const pair = generatePair(cfg);
+      const key = pair.op + '|' + pair.a + '|' + pair.b;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const algo = buildAlgorithm(pair.op, pair.a, pair.b);
+      qs.push({
+        ...pair,
+        algo,
+        mental: cfg.mental ? mentalStrategy(pair.op, pair.a, pair.b, pair.dp) : null
+      });
+    }
+    return qs;
+  }
+
+  // ─── Render layout ────────────────────────────────────────────────
+  function internalToLayout(algo, colIndex) {
+    if (colIndex < 0) return 0;
+    const { off, intW, maxDec } = algo;
+    if (maxDec === 0) return off + colIndex;
+    if (colIndex < intW) return off + colIndex;
+    return off + intW + 1 + (colIndex - intW);
+  }
+
+  function layoutToInternal(algo, layoutCol) {
+    const { off, intW, decDotCol, maxDec } = algo;
+    if (maxDec > 0 && layoutCol === decDotCol) return -1;
+    if (layoutCol < off + intW) return layoutCol - off;
+    return layoutCol - off - 1;
+  }
+
+  function layoutColForStep(algo, st) {
+    if (st.op === 'add-overflow') return 0;
+    return internalToLayout(algo, st.colIndex);
+  }
+
+  function tradeVisible(algo, colIndex, stepIdx) {
+    if (colIndex < 0 || colIndex >= algo.n) return false;
+    const st = algo.steps.find(x => x.colIndex === colIndex);
+    return st && algo.steps.indexOf(st) <= stepIdx;
+  }
+
+  function borrowVisible(algo, colIndex, stepIdx) {
+    if (!algo.borrowMarks || !algo.borrowMarks[colIndex]) return false;
+    const borrowerStep = algo.steps.find(x => x.colIndex === colIndex + 1);
+    return borrowerStep && algo.steps.indexOf(borrowerStep) <= stepIdx;
+  }
+
+  /** Student-facing trade display when a column both lent and borrowed */
+  function displayTradeAtColumn(algo, ci) {
+    const trade = algo.trades[ci];
+    const orig = algo.originalCols[ci];
+    if (algo.borrowMarks[ci]) {
+      return { old: orig, new: orig + 10 };
+    }
+    return { old: trade.old, new: trade.new };
+  }
+
+  function carryLayoutCol(algo, sourceColIndex) {
+    const dest = sourceColIndex - 1;
+    return internalToLayout(algo, dest);
+  }
+
+  function renderWrittenLayout(algo, stepIdx) {
+    const { top, bot, res, W, decDotCol, maxDec: dp } = algo;
+    const carry = Array(W).fill('');
+    const tradeAnno = Array(W).fill('');
+
+    for (let s = 0; s <= stepIdx; s++) {
+      const st = algo.steps[s];
+      if (st.carryOut != null && st.op === 'add') {
+        carry[carryLayoutCol(algo, st.colIndex)] = String(st.carryOut);
+      }
+      if (st.op === 'add-overflow' && st.overflowDigit != null) {
+        carry[carryLayoutCol(algo, 0)] = String(st.overflowDigit);
+      }
+    }
+
+    const revealed = Array(W).fill(false);
+    for (let s = 0; s <= stepIdx; s++) {
+      const st = algo.steps[s];
+      if (!st) continue;
+      const lc = layoutColForStep(algo, st);
+      for (let c = lc; c < W; c++) revealed[c] = true;
+    }
+
+    for (let ci = 0; ci < algo.n; ci++) {
+      const lc = internalToLayout(algo, ci);
+      const tradeShow = tradeVisible(algo, ci, stepIdx) && algo.trades[ci];
+      const borrowShow = borrowVisible(algo, ci, stepIdx) && algo.borrowMarks[ci];
+      if (tradeShow) {
+        const disp = displayTradeAtColumn(algo, ci);
+        tradeAnno[lc] = `<span class="trade-new">${disp.new}</span>`;
+      } else if (borrowShow) {
+        tradeAnno[lc] = `<span class="borrow-new">${algo.borrowMarks[ci].new}</span>`;
+      }
+    }
+
+    const fmtDigit = (digits, c) => {
+      if (dp > 0 && c === decDotCol) return '.';
+      const ch = digits[c] || '';
+      return ch || '\u00a0';
+    };
+
+    let h = '<div class="algo-wrap"><table class="algo-table"><tbody>';
+
+    h += '<tr class="carry-row">';
+    for (let c = 0; c < W; c++) {
+      if (dp > 0 && c === decDotCol) {
+        h += '<td class="cell-dot">\u00a0</td>';
+        continue;
+      }
+      h += `<td class="carry-cell">${carry[c] ? `<span>${carry[c]}</span>` : '\u00a0'}</td>`;
+    }
+    h += '</tr>';
+
+    const hasTradeAnno = tradeAnno.some(Boolean);
+    if (hasTradeAnno) {
+      h += '<tr class="trade-anno-row">';
+      for (let c = 0; c < W; c++) {
+        if (dp > 0 && c === decDotCol) {
+          h += '<td class="cell-dot">\u00a0</td>';
+          continue;
+        }
+        h += `<td class="trade-anno-cell">${tradeAnno[c] || '\u00a0'}</td>`;
+      }
+      h += '</tr>';
+    }
+
+    h += '<tr class="top-row">';
+    for (let c = 0; c < W; c++) {
+      if (dp > 0 && c === decDotCol) {
+        h += `<td class="cell-dot">.</td>`;
+        continue;
+      }
+      const ci = layoutToInternal(algo, c);
+      if (tradeVisible(algo, ci, stepIdx) && algo.trades[ci]) {
+        const disp = displayTradeAtColumn(algo, ci);
+        h += `<td class="digit-cell"><span class="trade-old">${disp.old}</span></td>`;
+      } else if (borrowVisible(algo, ci, stepIdx) && algo.borrowMarks[ci]) {
+        h += `<td class="digit-cell"><span class="borrow-old">${algo.borrowMarks[ci].old}</span></td>`;
+      } else {
+        h += `<td class="digit-cell">${fmtDigit(top, c)}</td>`;
+      }
+    }
+    h += '</tr>';
+
+    h += '<tr class="bot-row">';
+    for (let c = 0; c < W; c++) {
+      const opSym = c === 0 ? (algo.op === 'add' ? '+' : '−') + '\u00a0' : '';
+      const dotCls = (dp > 0 && c === decDotCol) ? ' cell-dot' : '';
+      const val = (dp > 0 && c === decDotCol) ? '.' : fmtDigit(bot, c);
+      h += `<td class="digit-cell${dotCls}">${opSym}${val}</td>`;
+    }
+    h += '</tr>';
+
+    h += `<tr class="cell-line"><td colspan="${W}"></td></tr>`;
+
+    h += '<tr class="result-row">';
+    for (let c = 0; c < W; c++) {
+      if (dp > 0 && c === decDotCol) {
+        h += `<td class="cell-dot">${revealed[c] ? '.' : '\u00a0'}</td>`;
+        continue;
+      }
+      const ch = revealed[c] ? (res[c] || '0') : '\u00a0';
+      h += `<td class="cell-result digit-cell${revealed[c] ? '' : ' unrevealed'}">${ch}</td>`;
+    }
+    h += '</tr></tbody></table></div>';
+    return h;
+  }
+
+  function renderSteps(algo, stepIdx, q, mental) {
+    const ul = $('stepsList');
+    ul.innerHTML = '';
+    const n = algo.steps.length;
+
+    algo.steps.forEach((st, i) => {
+      if (i > stepIdx) return;
+      const { main, sub } = formatStepDisplay(st, algo);
+      const li = document.createElement('li');
+      li.className = (i < stepIdx ? 'done' : 'current');
+      li.innerHTML = `
+        <div class="step-label">STEP ${i + 1}</div>
+        <div class="step-main">${main}</div>
+        <div class="step-sub">${sub}</div>`;
+      ul.appendChild(li);
+    });
+
+    if (stepIdx >= n - 1) {
+      const complete = stepIdx >= n || !mental;
+      const li = document.createElement('li');
+      li.className = 'step-answer' + (complete ? ' done' : ' current');
+      const ans = questionWithAnswer(q.op, q.a, q.b, algo.resultNum);
+      li.innerHTML = `
+        <div class="step-label">STEP ${n + 1}</div>
+        <div class="step-main">Answer: ${ans}</div>
+        <div class="step-sub">${complete ? '✓ Complete' : ''}</div>`;
+      ul.appendChild(li);
+    }
+
+    const mentalBox = $('mentalBox');
+    if (mental && stepIdx >= n) {
+      $('mentalText').textContent = mental;
+      mentalBox.classList.remove('hidden');
+    } else {
+      mentalBox.classList.add('hidden');
+    }
+  }
+
+  function getRadio(name) {
+    const el = document.querySelector(`#setupForm input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  function getLaunchPinMode() {
+    const el = document.querySelector('#launchPinToggle input[name="launchPinMode"]:checked');
+    return el ? el.value : 'require';
+  }
+
+  function syncLaunchPinLabels() {
+    document.querySelectorAll('#launchPinToggle .choice-option').forEach(opt => {
+      const input = opt.querySelector('input[type="radio"]');
+      if (input) opt.classList.toggle('is-selected', input.checked);
+    });
+  }
+
+  function applyLaunchExtPinPref() {
+    state.pinRequired = getLaunchPinMode() === 'require';
+  }
+
+  function persistLaunchPinPref() {
+    applyLaunchExtPinPref();
+    try {
+      sessionStorage.setItem('embedmaths-pin-required', state.pinRequired ? '1' : '0');
+      const pin = ($('extPin') && $('extPin').value) || ($('cfgPin') && $('cfgPin').value) || '1234';
+      sessionStorage.setItem('embedmaths-pin', pin);
+    } catch (e) {}
+  }
+
+  function syncLaunchPinFromStorage() {
+    try {
+      const pinReq = sessionStorage.getItem('embedmaths-pin-required');
+      const val = pinReq === '0' ? 'none' : 'require';
+      const inp = document.querySelector(`#launchPinToggle input[name="launchPinMode"][value="${val}"]`);
+      if (inp) inp.checked = true;
+      syncLaunchPinLabels();
+      state.pinRequired = val === 'require';
+    } catch (e) {}
+  }
+
+  function syncSetupPinFromLaunch() {
+    const val = getLaunchPinMode();
+    const inp = document.querySelector(`#setupForm input[name="cfgPinMode"][value="${val}"]`);
+    if (inp && !inp.checked) {
+      inp.checked = true;
+      syncChoiceLabels();
+      updatePinRowVisibility();
+    }
+  }
+
+  function syncLaunchPinFromSetup() {
+    const val = getRadio('cfgPinMode');
+    if (!val) return;
+    const inp = document.querySelector(`#launchPinToggle input[name="launchPinMode"][value="${val}"]`);
+    if (inp && !inp.checked) {
+      inp.checked = true;
+      syncLaunchPinLabels();
+    }
+  }
+
+  function updateExtPinFieldVisibility() {
+    const field = $('extPinField');
+    if (field) field.classList.toggle('hidden', getLaunchPinMode() !== 'require');
+  }
+
+  function initLaunchPin() {
+    const toggle = $('launchPinToggle');
+    if (!toggle) return;
+    toggle.querySelectorAll('.choice-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const input = opt.querySelector('input[type="radio"]');
+        if (input && !input.checked) {
+          input.checked = true;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+    toggle.addEventListener('change', () => {
+      syncLaunchPinLabels();
+      syncSetupPinFromLaunch();
+      persistLaunchPinPref();
+      updateExtPinFieldVisibility();
+    });
+    syncLaunchPinFromStorage();
+    updateExtPinFieldVisibility();
+  }
+
+  function syncChoiceLabels() {
+    document.querySelectorAll('#setupForm .choice-option').forEach(opt => {
+      const input = opt.querySelector('input[type="radio"]');
+      if (input) opt.classList.toggle('is-selected', input.checked);
+    });
+  }
+
+  function updateNumSizeVisibility() {
+    const nt = getRadio('cfgNumType');
+    $('numSizeCard').classList.toggle('hidden', nt === '1dp' || nt === '2dp');
+  }
+
+  function updatePinRowVisibility() {
+    $('cfgPinRow').classList.toggle('hidden', getRadio('cfgPinMode') !== 'require');
+  }
+
+  function initSetupForm() {
+    $('setupForm').addEventListener('change', (e) => {
+      syncChoiceLabels();
+      if (e.target.name === 'cfgNumType') updateNumSizeVisibility();
+      if (e.target.name === 'cfgPinMode') {
+        updatePinRowVisibility();
+        syncLaunchPinFromSetup();
+        persistLaunchPinPref();
+      }
+    });
+    document.querySelectorAll('#setupForm .choice-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const input = opt.querySelector('input[type="radio"]');
+        if (input && !input.checked) {
+          input.checked = true;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+    updateNumSizeVisibility();
+    updatePinRowVisibility();
+  }
+
+  // ─── Practice flow ────────────────────────────────────────────────
+  function startPractice() {
+    state.config = {
+      op: getRadio('cfgOp'),
+      numType: getRadio('cfgNumType'),
+      numSize: getRadio('cfgNumSize'),
+      regroup: getRadio('cfgRegroup'),
+      count: getRadio('cfgCount'),
+      estimate: getRadio('cfgEstimate') === 'yes',
+      mental: getRadio('cfgMental') === 'yes',
+      pinRequired: getRadio('cfgPinMode') === 'require'
+    };
+    state.pinRequired = state.config.pinRequired;
+    state.extPin = state.config.pinRequired ? ($('cfgPin').value || '1234') : '';
+    try {
+      sessionStorage.setItem('embedmaths-pin', state.extPin || '1234');
+      sessionStorage.setItem('embedmaths-pin-required', state.pinRequired ? '1' : '0');
+    } catch (e) {}
+    syncLaunchPinFromSetup();
+    state.questions = generateQuestions(state.config);
+    state.qIndex = 0;
+    state.stepIndex = -1;
+    state.solutionShown = false;
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = state.questions[state.qIndex];
+    const total = state.questions.length;
+    $('progressPill').textContent = `Question ${state.qIndex + 1} of ${total}`;
+    $('practiceQuestion').textContent = questionText(q.op, q.a, q.b);
+    updateSessionMeta(q);
+    state.stepIndex = -1;
+    state.solutionShown = false;
+
+    const card = $('questionCard');
+    card.classList.remove('no-action');
+    $('showSolutionBtn').style.display = '';
+    $('revealPanel').classList.remove('visible');
+    $('practiceActions').classList.remove('visible');
+    $('prevStepBtn').style.display = 'none';
+    $('nextStepBtn').style.display = '';
+    $('nextQuestionBtn').style.display = 'none';
+    updateProgressDots(-1, q.algo);
+
+    if (state.config.estimate) {
+      $('estimateQuestion').textContent = questionText(q.op, q.a, q.b);
+      updateSessionMeta(q);
+      showScreen('estimate');
+    } else {
+      showScreen('practice');
+    }
+  }
+
+  function showSolution() {
+    state.solutionShown = true;
+    state.stepIndex = -1;
+    const q = state.questions[state.qIndex];
+    const card = $('questionCard');
+    card.classList.add('no-action');
+    $('showSolutionBtn').style.display = 'none';
+    $('revealPanel').classList.add('visible');
+    $('practiceActions').classList.add('visible');
+    $('layoutPanel').innerHTML = renderWrittenLayout(q.algo, -1);
+    renderSteps(q.algo, -1, q, null);
+    updateProgressDots(-1, q.algo);
+    updateStepButtons(q);
+  }
+
+  function updateStepButtons(q) {
+    const n = q.algo.steps.length;
+    const hasMental = state.config.mental && q.mental;
+    const done = (!hasMental && state.stepIndex >= n - 1) || (hasMental && state.stepIndex >= n);
+
+    $('prevStepBtn').style.display = state.stepIndex >= 0 ? '' : 'none';
+    $('nextStepBtn').style.display = done ? 'none' : '';
+    $('nextQuestionBtn').style.display = done ? '' : 'none';
+  }
+
+  function finishColumnSteps() {
+    updateStepButtons(state.questions[state.qIndex]);
+  }
+
+  function updateStepUI(q) {
+    const n = q.algo.steps.length;
+    $('layoutPanel').innerHTML = renderWrittenLayout(q.algo, state.stepIndex);
+    if (state.stepIndex < n) {
+      renderSteps(q.algo, state.stepIndex, q, null);
+    } else {
+      renderSteps(q.algo, state.stepIndex, q, q.mental);
+    }
+    updateProgressDots(state.stepIndex, q.algo);
+    updateStepButtons(q);
+  }
+
+  function nextStep() {
+    const q = state.questions[state.qIndex];
+    const n = q.algo.steps.length;
+    const hasMental = state.config.mental && q.mental;
+
+    if (state.stepIndex < n - 1) {
+      state.stepIndex++;
+    } else if (hasMental && state.stepIndex === n - 1) {
+      state.stepIndex = n;
+    } else {
+      finishColumnSteps();
+      return;
+    }
+
+    updateStepUI(q);
+  }
+
+  function prevStep() {
+    const q = state.questions[state.qIndex];
+    if (state.stepIndex <= -1) return;
+    state.stepIndex--;
+    updateStepUI(q);
+  }
+
+  function nextQuestion() {
+    state.qIndex++;
+    if (state.qIndex >= state.questions.length) {
+      showCompleteScreen(
+        pick(COMPLETE_TITLES),
+        `You worked through ${state.questions.length} algorithm questions. Great effort!`
+      );
+      return;
+    }
+    showScreen('practice');
+    loadQuestion();
+  }
+
+  // ─── Extension challenges ─────────────────────────────────────────
+  const EXT_TYPES = [
+    { id: 'word', label: 'Word problem' },
+    { id: 'missing', label: 'Missing number' },
+    { id: 'truefalse', label: 'True / False' },
+    { id: 'multistep', label: 'Multi-step' },
+    { id: 'estimation', label: 'Estimation' }
+  ];
+
+  const EXT_NAMES = ['Liam', 'Aisha', 'Noah', 'Priya', 'Ethan', 'Mia'];
+  const EXT_ITEMS = ['stickers', 'books', 'marbles', 'coins', 'cards'];
+
+  function genExtensionChallenge(typeId) {
+    const name = pick(EXT_NAMES);
+    const item = pick(EXT_ITEMS);
+    const a = randInt(12, 89);
+    const b = randInt(8, 45);
+    const sum = a + b;
+    const diff = a + randInt(10, 30) - b;
+
+    switch (typeId) {
+      case 'word':
+        return {
+          problem: `<p><strong>${name}</strong> has ${a} ${item} and receives ${b} more. How many ${item} does ${name} have now?</p>`,
+          answer: `${name} has ${sum} ${item}. (${a} + ${b} = ${sum})`
+        };
+      case 'missing':
+        const miss = randInt(0, 1) ? 'add' : 'sub';
+        if (miss === 'add') {
+          const x = randInt(10, 40);
+          return {
+            problem: `<p class="math-line">${a} + □ = ${a + x}</p><p>Find the missing number.</p>`,
+            answer: `□ = ${x} because ${a} + ${x} = ${a + x}.`
+          };
+        }
+        const top = randInt(50, 99);
+        const bot = randInt(10, 30);
+        return {
+          problem: `<p class="math-line">${top} − □ = ${top - bot}</p><p>Find the missing number.</p>`,
+          answer: `□ = ${bot} because ${top} − ${bot} = ${top - bot}.`
+        };
+      case 'truefalse': {
+        const stmt = randInt(0, 1);
+        if (stmt) {
+          const wrong = sum + randInt(2, 8);
+          return {
+            problem: `<p>True or false?</p><p class="math-line">${a} + ${b} = ${wrong}</p>`,
+            answer: `False. ${a} + ${b} = ${sum}, not ${wrong}.`
+          };
+        }
+        return {
+          problem: `<p>True or false?</p><p class="math-line">${sum} − ${b} = ${a}</p>`,
+          answer: `True. ${sum} − ${b} = ${a}.`
+        };
+      }
+      case 'multistep': {
+        const c = randInt(5, 15);
+        const total = a + b - c;
+        return {
+          problem: `<p>${name} collects ${a} ${item}, then ${b} more, and gives away ${c}. How many are left?</p>`,
+          answer: `${a} + ${b} − ${c} = ${total}. ${name} has ${total} ${item} left.`
+        };
+      }
+      case 'estimation': {
+        const x = randInt(128, 487);
+        const y = randInt(95, 312);
+        return {
+          problem: `<p>Estimate the answer — do not work out exactly.</p><p class="math-line">${x} + ${y}</p><p class="math-line">${x - randInt(20, 40)} − ${y - randInt(15, 35)}</p>`,
+          answer: `${x} + ${y}: round to ${Math.round(x / 100) * 100} + ${Math.round(y / 100) * 100} ≈ ${Math.round(x / 100) * 100 + Math.round(y / 100) * 100}. Accept any sensible estimate with clear rounding.`
+        };
+      }
+      default:
+        return { problem: '<p>Challenge</p>', answer: '—' };
+    }
+  }
+
+  function buildExtensionSet(count = 10) {
+    const arr = [];
+    let ti = 0;
+    for (let i = 0; i < count; i++) {
+      const type = EXT_TYPES[ti % EXT_TYPES.length];
+      ti++;
+      arr.push({ type, ...genExtensionChallenge(type.id) });
+    }
+    return arr;
+  }
+
+  function loadExtension() {
+    const ch = state.extChallenges[state.extIndex];
+    $('extProgress').textContent = `Challenge ${state.extIndex + 1} of ${state.extChallenges.length}`;
+    $('extTypeBadge').textContent = ch.type.label;
+    $('extProblem').innerHTML = ch.problem;
+    $('extAnswer').classList.add('hidden');
+    $('extAnswer').textContent = ch.answer;
+    $('extRevealPin').value = '';
+    $('extPinError').classList.add('hidden');
+    const pinBlock = document.querySelector('.pin-overlay');
+    if (state.pinRequired) {
+      pinBlock.classList.remove('pin-free');
+      if (pinBlock.querySelector('label')) pinBlock.querySelector('label').style.display = '';
+      $('extRevealPin').style.display = '';
+      $('extRevealBtn').textContent = 'Reveal answer (PIN required)';
+      $('extRevealBtn').style.display = '';
+    } else {
+      pinBlock.classList.add('pin-free');
+      if (pinBlock.querySelector('label')) pinBlock.querySelector('label').style.display = 'none';
+      $('extRevealPin').style.display = 'none';
+      $('extRevealBtn').textContent = 'Reveal answer';
+      $('extRevealBtn').style.display = '';
+    }
+  }
+
+  function startExtension() {
+    applyLaunchExtPinPref();
+    state.extPin = state.pinRequired ? ($('extPin').value || '1234') : '';
+    try {
+      sessionStorage.setItem('embedmaths-pin', state.extPin || '1234');
+      sessionStorage.setItem('embedmaths-pin-required', state.pinRequired ? '1' : '0');
+    } catch (e) {}
+    state.extIndex = 0;
+    state.extChallenges = buildExtensionSet(10);
+    showScreen('extension');
+    loadExtension();
+  }
+
+  function revealExtAnswer() {
+    if (!state.pinRequired || $('extRevealPin').value === state.extPin) {
+      $('extAnswer').classList.remove('hidden');
+      $('extPinError').classList.add('hidden');
+    } else {
+      $('extPinError').classList.remove('hidden');
+    }
+  }
+
+  function nextExtension() {
+    state.extIndex++;
+    if (state.extIndex >= state.extChallenges.length) {
+      showCompleteScreen(
+        pick(COMPLETE_TITLES),
+        'You have worked through all extension challenges.'
+      );
+      return;
+    }
+    loadExtension();
+  }
+
+  // ─── Events ───────────────────────────────────────────────────────
+  initSetupForm();
+  initLaunchPin();
+  try {
+    const saved = sessionStorage.getItem('embedmaths-pin');
+    if (saved) {
+      $('cfgPin').value = saved;
+      $('extPin').value = saved;
+    }
+  } catch (e) {}
+
+  document.querySelectorAll('.launch-card').forEach(card => {
+    card.addEventListener('click', () => {
+      state.path = card.dataset.path;
+      if (state.path === 'algorithm') showScreen('setup');
+      else {
+        applyLaunchExtPinPref();
+        updateExtPinFieldVisibility();
+        try {
+          const saved = sessionStorage.getItem('embedmaths-pin');
+          if (saved) $('extPin').value = saved;
+        } catch (e) {}
+        showScreen('extSetup');
+      }
+    });
+  });
+
+  $('backBtn').addEventListener('click', () => {
+    if (screens.practice.classList.contains('active') || screens.estimate.classList.contains('active')) {
+      if (confirm('Leave practice? Progress in this session will be lost.')) goHome();
+    } else if (screens.extension.classList.contains('active')) {
+      if (confirm('Leave challenges?')) goHome();
+    } else {
+      goHome();
+    }
+  });
+
+  $('settingsBtn').addEventListener('click', () => {
+    if (confirm('Return to settings? Your current question progress will be lost.')) {
+      showScreen('setup');
+    }
+  });
+
+  $('startPracticeBtn').addEventListener('click', startPractice);
+  $('startExtBtn').addEventListener('click', startExtension);
+  $('estimateReadyBtn').addEventListener('click', () => showScreen('practice'));
+  $('showSolutionBtn').addEventListener('click', showSolution);
+  $('nextStepBtn').addEventListener('click', nextStep);
+  $('prevStepBtn').addEventListener('click', prevStep);
+  $('nextQuestionBtn').addEventListener('click', nextQuestion);
+  $('extRevealBtn').addEventListener('click', revealExtAnswer);
+  $('extNextBtn').addEventListener('click', nextExtension);
+  $('completeHomeBtn').addEventListener('click', goHome);
+
+})();
+</script>
+</body>
+</html>
